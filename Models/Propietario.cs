@@ -1,11 +1,15 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InmobiliariaApp.Models
 {
-    [Index(nameof(DNI), IsUnique = true)]
     public class Propietario
     {
+        [Key]
+        [Display(Name = "Código Int.")]
         public int Id { get; set; }
 
         [Required, StringLength(20)]
@@ -17,10 +21,21 @@ namespace InmobiliariaApp.Models
         [Required, StringLength(50)]
         public string Apellido { get; set; } = string.Empty;
 
-        [Phone, StringLength(30)]
+        [Required, Phone, StringLength(30)]
+        [Display(Name = "Teléfono")]
         public string? Telefono { get; set; }
 
-        [EmailAddress, StringLength(100)]
+        [Required, EmailAddress, StringLength(100)]
         public string? Email { get; set; }
+        
+        public override string ToString()
+		{
+			
+			var res = $"{Nombre} {Apellido}";
+			if(!String.IsNullOrEmpty(DNI)) {
+				res += $" ({DNI})";
+			}
+			return res;
+		}
     }
 }

@@ -6,6 +6,8 @@ namespace InmobiliariaApp.Models
     [Index(nameof(DNI), IsUnique = true)]
     public class Inquilino
     {
+        [Key]
+		[Display(Name = "Código")]
         public int Id { get; set; }
 
         [Required, StringLength(20)]
