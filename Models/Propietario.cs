@@ -28,14 +28,20 @@ namespace InmobiliariaApp.Models
         [Required, EmailAddress, StringLength(100)]
         public string? Email { get; set; }
         
+        // Propiedad 'Clave' añadida para coincidir con la base de datos.
+        [Required, StringLength(255)]
+        [DataType(DataType.Password)]
+        public string? Clave { get; set; }
+        
         public override string ToString()
-		{
-			
-			var res = $"{Nombre} {Apellido}";
-			if(!String.IsNullOrEmpty(DNI)) {
-				res += $" ({DNI})";
-			}
-			return res;
-		}
+        {
+
+            var res = $"{Nombre} {Apellido}";
+            if (!String.IsNullOrEmpty(DNI))
+            {
+                res += $" ({DNI})";
+            }
+            return res;
+        }
     }
 }
