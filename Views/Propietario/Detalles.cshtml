@@ -1,10 +1,10 @@
-@model InmobiliariaApp.Models.Propietario
+@model InmobiliariaAppAguileraBecerra.Models.Propietario
 
 @{
-    ViewData["Title"] = "Detalles";
+    ViewData["Title"] = "Detalles del Propietario";
 }
 
-<h1>Detalles</h1>
+<h2>Detalles del Propietario</h2>
 
 <div>
     <h4>Propietario</h4>
@@ -49,6 +49,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Editar" asp-route-id="@Model.Id">Editar</a> |
-    <a asp-action="Index">Volver a la lista</a>
+    <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
 </div>

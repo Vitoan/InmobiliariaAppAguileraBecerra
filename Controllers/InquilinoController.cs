@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using InmobiliariaApp.Models;
-using System.Collections.Generic;
+using InmobiliariaAppAguileraBecerra.Models;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {

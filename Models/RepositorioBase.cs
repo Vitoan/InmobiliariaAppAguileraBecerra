@@ -1,20 +1,14 @@
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 
-namespace Inmobiliaria_.Net_Core.Models
+namespace InmobiliariaAppAguileraBecerra.Models
 {
-	public abstract class RepositorioBase
-	{
-		protected readonly IConfiguration configuration;
-		protected readonly string connectionString;
+    public abstract class RepositorioBase
+    {
+        protected readonly string connectionString = "Server=localhost;User=root;Password=;Database=inmobiliaria_db;SslMode=none";
 
-		protected RepositorioBase(IConfiguration configuration)
-		{
-			this.configuration = configuration;
-			connectionString = "Server=localhost;User=root;Password=;Database=test;SslMode=none"
-		}
-	}
+        protected MySqlConnection GetConnection()
+        {
+            return new MySqlConnection(connectionString);
+        }
+    }
 }

@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-namespace InmobiliariaApp.Models
+namespace InmobiliariaAppAguileraBecerra.Models
 {
+    [Index(nameof(DNI), IsUnique = true)]
     public class Propietario
     {
         [Key]
@@ -23,21 +21,19 @@ namespace InmobiliariaApp.Models
 
         [Required, Phone, StringLength(30)]
         [Display(Name = "Teléfono")]
-        public string? Telefono { get; set; }
+        public string Telefono { get; set; } = string.Empty;
 
         [Required, EmailAddress, StringLength(100)]
-        public string? Email { get; set; }
-        
-        // Propiedad 'Clave' añadida para coincidir con la base de datos.
+        public string Email { get; set; } = string.Empty;
+
         [Required, StringLength(255)]
         [DataType(DataType.Password)]
-        public string? Clave { get; set; }
-        
+        public string Clave { get; set; } = string.Empty;
+
         public override string ToString()
         {
-
             var res = $"{Nombre} {Apellido}";
-            if (!String.IsNullOrEmpty(DNI))
+            if (!string.IsNullOrEmpty(DNI))
             {
                 res += $" ({DNI})";
             }

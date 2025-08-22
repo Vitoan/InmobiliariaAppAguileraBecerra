@@ -1,13 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace InmobiliariaApp.Models
+namespace InmobiliariaAppAguileraBecerra.Models
 {
     [Index(nameof(DNI), IsUnique = true)]
     public class Inquilino
     {
         [Key]
-		[Display(Name = "Código")]
+        [Display(Name = "Código")]
         public int Id { get; set; }
 
         [Required, StringLength(20)]
