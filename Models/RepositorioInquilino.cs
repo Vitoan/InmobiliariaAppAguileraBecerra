@@ -15,10 +15,9 @@ namespace Inmobiliaria_.Net_Core.Models
 
 		}
 
-
         public int Alta(Inquilino i){
             int res = -1;
-            using (SqlConnection connection = new Connection(connectionString))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 string sql = @"INSERT INTO inquilino 
 					(Nombre, Apellido, DNI, Telefono, Email)
@@ -28,11 +27,11 @@ namespace Inmobiliaria_.Net_Core.Models
                 using(SqlCommand command = new SqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
-                    command.Parameters.AddWithValue("@nombre", i.nombre);
-                    command.Parameters.AddWithValue("@apellido", i.apellido);
+                    command.Parameters.AddWithValue("@nombre", i.Nombre);
+                    command.Parameters.AddWithValue("@apellido", i.Apellido);
                     command.Parameters.AddWithValue("@DNI", i.DNI);
-                    command.Parameters.AddWithValue("@telefono", i.telefono);
-                    command.Parameters.AddWithValue("@email", i.email);
+                    command.Parameters.AddWithValue("@telefono", i.Telefono);
+                    command.Parameters.AddWithValue("@email", i.Email);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     i.Id = res;
@@ -44,7 +43,7 @@ namespace Inmobiliaria_.Net_Core.Models
 
         public int Baja(int id){
             int res = -1;
-            using (SqlConnection connection = new Connection(connectionString))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 string sql = "DELETE FROM inquilino WHERE Id = @id";
                 using (SqlCommand command = new SqlCommand(sql, connection))
@@ -63,17 +62,16 @@ namespace Inmobiliaria_.Net_Core.Models
             int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = @"UPDATE Propietarios 
-					SET Nombre=@nombre, Apellido=@apellido, Dni=@dni, Telefono=@telefono, Email=@email, Clave=@clave
-					WHERE IdPropietario = @id";
+				string sql = @"UPDATE inquilino 
+					SET Nombre=@nombre, Apellido=@apellido, DNI=@dni, Telefono=@telefono, Email=@email WHERE Id = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
-					command.Parameters.AddWithValue("@nombre", i.nombre);
-					command.Parameters.AddWithValue("@apellido", i.apellido);
+					command.Parameters.AddWithValue("@nombre", i.Nombre);
+					command.Parameters.AddWithValue("@apellido", i.Apellido);
 					command.Parameters.AddWithValue("@dni", i.DNI);
-					command.Parameters.AddWithValue("@telefono", i.telefono);
-					command.Parameters.AddWithValue("@email", i.email);
+					command.Parameters.AddWithValue("@telefono", i.Telefono);
+					command.Parameters.AddWithValue("@email", i.Email);
 					command.Parameters.AddWithValue("@id", i.Id);
 					connection.Open();
 					res = command.ExecuteNonQuery();
@@ -89,7 +87,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
 				string sql = @"SELECT 
-					Id, nombre, apellido, DNI, telefono, email
+					Id, Nombre, Apellido, DNI, Telefono, Email
 					FROM inquilino";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
@@ -101,11 +99,11 @@ namespace Inmobiliaria_.Net_Core.Models
 						Inquilino i = new Inquilino
 						{
 							Id = reader.GetInt32(nameof(Inquilino.Id)),
-							Nombre = reader.GetString("nombre"),
-							Apellido = reader.GetString("apellido"),
+							Nombre = reader.GetString("Nombre"),
+							Apellido = reader.GetString("Apellido"),
 							Dni = reader.GetString("DNI"),
-							Telefono = reader.GetString("telefono"),
-							Email = reader.GetString("email")
+							Telefono = reader.GetString("Telefono"),
+							Email = reader.GetString("Email")
 						};
 						res.Add(i);
 					}
