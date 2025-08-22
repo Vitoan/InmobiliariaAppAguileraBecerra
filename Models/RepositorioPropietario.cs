@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using InmobiliariaApp.Models; // Usamos el namespace de tu modelo
 using System.Data;
 
-namespace InmobiliariaApp.Repositorios
+namespace InmobiliariaApp.Models
 {
     // Repositorio que maneja las operaciones de la base de datos para Propietario de forma directa con SQL.
     public class RepositorioPropietario

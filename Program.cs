@@ -1,58 +1,62 @@
-using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using InmobiliariaApp.Models;
-using InmobiliariaApp.Repositorios;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        // Instancia del repositorio de propietarios
-        var repositorio = new RepositorioPropietario();
+        CreateHostBuilder(args).Build().Run();
+    }
 
-        Console.WriteLine("Probando la conexión y los métodos del repositorio de propietarios...");
-        Console.WriteLine("---------------------------------------------------------------------");
-
-        // 1. Probar la inserción (Alta)
-        try
-        {
-            var nuevoPropietario = new Propietario
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
             {
-                Nombre = "Juan",
-                Apellido = "Perez",
-                DNI = "12345678",
-                Telefono = "123-456-7890",
-                Email = "juan.perez@example.com",
-                Clave = "password123"
-            };
+                webBuilder.UseStartup<Startup>();
+            });
+}
 
-            var idPropietario = repositorio.Alta(nuevoPropietario);
-            Console.WriteLine($"Propietario insertado con ID: {idPropietario}");
+public class Startup
+{
+    // Este método se usa para configurar los servicios de la aplicación
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // Añade el soporte para controladores con vistas
+        services.AddControllersWithViews();
 
-            // 2. Probar la consulta por ID
-            var propietarioInsertado = repositorio.ObtenerPorId(idPropietario);
-            Console.WriteLine($"Propietario obtenido: {propietarioInsertado.Nombre} {propietarioInsertado.Apellido}");
+        // Configura la inyección de dependencias para el repositorio.
+        // Se usa el nombre de espacio completo para evitar cualquier ambigüedad.
+        services.AddScoped<InmobiliariaApp.Models.RepositorioPropietario>();
+    }
 
-            // 3. Probar la modificación
-            propietarioInsertado.Telefono = "987-654-3210";
-            var filasAfectadasModif = repositorio.Modificacion(propietarioInsertado);
-            Console.WriteLine($"Propietario modificado. Filas afectadas: {filasAfectadasModif}");
-
-            // 4. Probar la consulta de todos
-            var todosLosPropietarios = repositorio.ObtenerTodos();
-            Console.WriteLine($"Total de propietarios en la base de datos: {todosLosPropietarios.Count}");
-
-            // 5. Probar la eliminación (Baja)
-            var filasAfectadasBaja = repositorio.Baja(idPropietario);
-            Console.WriteLine($"Propietario eliminado. Filas afectadas: {filasAfectadasBaja}");
-        }
-        catch (Exception ex)
+    // Este método se usa para configurar el pipeline de solicitudes HTTP
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
         {
-            Console.WriteLine("Ocurrió un error al probar la conexión y los métodos del repositorio:");
-            Console.WriteLine(ex.Message);
+            app.UseDeveloperExceptionPage();
         }
+        else
+        {
+            app.UseExceptionHandler("/Home/Error");
+            app.UseHsts();
+        }
+        // app.UseHttpsRedirection(); // Se comenta temporalmente para evitar el error de redirección
+        app.UseStaticFiles();
 
-        Console.WriteLine("Prueba finalizada.");
-        Console.ReadKey(); // Espera a que el usuario presione una tecla para cerrar la consola
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            // Configura el enrutamiento predeterminado para la aplicación MVC
+            endpoints.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+        });
     }
 }

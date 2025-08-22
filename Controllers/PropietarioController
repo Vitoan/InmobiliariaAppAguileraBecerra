@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using InmobiliariaApp.Models;
-using InmobiliariaApp.Repositorios;
 using System.Collections.Generic;
 
-namespace InmobiliariaApp.Controllers
+namespace InmobiliariaAppAguileraBecerra.Controllers
 {
     // El controlador maneja las solicitudes relacionadas con la entidad Propietario.
     public class PropietarioController : Controller
