@@ -112,3 +112,35 @@ namespace Inmobiliaria_.Net_Core.Models
 			}
 			return res;
 		}
+
+		public Inquilino ObtenerPorId(int id)
+		{
+    		Inquilino i = null;
+    		using (SqlConnection connection = new SqlConnection(connectionString))
+    		{
+        		string sql = @"SELECT Id, Nombre, Apellido, DNI, Telefono, Email
+                       FROM inquilino
+                       WHERE Id = @id";
+        		using (SqlCommand command = new SqlCommand(sql, connection))
+        		{
+            		command.CommandType = CommandType.Text;
+            		command.Parameters.AddWithValue("@id", id);
+            		connection.Open();
+            		var reader = command.ExecuteReader();
+            		if (reader.Read())
+            			{
+                			i = new Inquilino
+                				{
+                    				Id = reader.GetInt32(nameof(Inquilino.Id)),
+                    				Nombre = reader.GetString("Nombre"),
+                    				Apellido = reader.GetString("Apellido"),
+                    				Dni = reader.GetString("DNI"),
+                    				Telefono = reader.GetString("Telefono"),
+                    				Email = reader.GetString("Email")
+                				};
+            			}
+            			connection.Close();
+        			}
+    			}
+    			return i;
+		}
