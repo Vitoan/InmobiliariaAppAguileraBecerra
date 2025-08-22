@@ -1,6 +1,6 @@
 using MySql.Data.MySqlClient;
 using System;
-using System.Generic;
+using System.Collections.Generic;
 using InmobiliariaApp.Models; // Usamos el namespace de tu modelo
 using System.Data;
 
@@ -47,7 +47,7 @@ namespace InmobiliariaApp.Repositorios
             int res = -1;
             using (var connection = new MySqlConnection(_connectionString))
             {
-                string sql = "DELETE FROM propietario WHERE IdPropietario = @id";
+                string sql = "DELETE FROM propietario WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -67,7 +67,7 @@ namespace InmobiliariaApp.Repositorios
             {
                 string sql = @"UPDATE propietario
                            SET Nombre=@nombre, Apellido=@apellido, Dni=@dni, Telefono=@telefono, Email=@email, Clave=@clave
-                           WHERE IdPropietario = @id";
+                           WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -92,7 +92,7 @@ namespace InmobiliariaApp.Repositorios
             var res = new List<Propietario>();
             using (var connection = new MySqlConnection(_connectionString))
             {
-                string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
+                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
                            FROM propietario";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -104,7 +104,7 @@ namespace InmobiliariaApp.Repositorios
                         {
                             res.Add(new Propietario
                             {
-                                Id = reader.GetInt32("IdPropietario"), // Mapeamos IdPropietario a Id
+                                Id = reader.GetInt32("Id"), // Mapeamos Id a Id
                                 Nombre = reader.GetString("Nombre"),
                                 Apellido = reader.GetString("Apellido"),
                                 DNI = reader.GetString("Dni"), // Mapeamos Dni a DNI
@@ -126,9 +126,9 @@ namespace InmobiliariaApp.Repositorios
             using (var connection = new MySqlConnection(_connectionString))
             {
                 // Usamos OFFSET y LIMIT para la paginación en MySQL.
-                string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
+                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
                            FROM propietario
-                           ORDER BY IdPropietario
+                           ORDER BY Id
                            LIMIT @tamPagina OFFSET @offset";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -142,7 +142,7 @@ namespace InmobiliariaApp.Repositorios
                         {
                             res.Add(new Propietario
                             {
-                                Id = reader.GetInt32("IdPropietario"),
+                                Id = reader.GetInt32("Id"),
                                 Nombre = reader.GetString("Nombre"),
                                 Apellido = reader.GetString("Apellido"),
                                 DNI = reader.GetString("Dni"),
@@ -163,7 +163,7 @@ namespace InmobiliariaApp.Repositorios
             int res = 0;
             using (var connection = new MySqlConnection(_connectionString))
             {
-                string sql = "SELECT COUNT(IdPropietario) FROM propietario";
+                string sql = "SELECT COUNT(Id) FROM propietario";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
@@ -179,9 +179,9 @@ namespace InmobiliariaApp.Repositorios
             Propietario p = null;
             using (var connection = new MySqlConnection(_connectionString))
             {
-                string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
+                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
                            FROM propietario
-                           WHERE IdPropietario=@id";
+                           WHERE Id=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -192,7 +192,7 @@ namespace InmobiliariaApp.Repositorios
                         {
                             p = new Propietario
                             {
-                                Id = reader.GetInt32("IdPropietario"),
+                                Id = reader.GetInt32("Id"),
                                 Nombre = reader.GetString("Nombre"),
                                 Apellido = reader.GetString("Apellido"),
                                 DNI = reader.GetString("Dni"),
@@ -213,7 +213,7 @@ namespace InmobiliariaApp.Repositorios
             Propietario p = null;
             using (var connection = new MySqlConnection(_connectionString))
             {
-                string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
+                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
                            FROM propietario
                            WHERE Email=@email";
                 using (var command = new MySqlCommand(sql, connection))
@@ -226,7 +226,7 @@ namespace InmobiliariaApp.Repositorios
                         {
                             p = new Propietario
                             {
-                                Id = reader.GetInt32("IdPropietario"),
+                                Id = reader.GetInt32("Id"),
                                 Nombre = reader.GetString("Nombre"),
                                 Apellido = reader.GetString("Apellido"),
                                 DNI = reader.GetString("Dni"),
@@ -248,7 +248,7 @@ namespace InmobiliariaApp.Repositorios
             using (var connection = new MySqlConnection(_connectionString))
             {
                 // Usamos el comodín % para la búsqueda de cadenas.
-                string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
+                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
                            FROM propietario
                            WHERE Nombre LIKE @nombre OR Apellido LIKE @nombre";
                 using (var command = new MySqlCommand(sql, connection))
@@ -261,7 +261,7 @@ namespace InmobiliariaApp.Repositorios
                         {
                             res.Add(new Propietario
                             {
-                                Id = reader.GetInt32("IdPropietario"),
+                                Id = reader.GetInt32("Id"),
                                 Nombre = reader.GetString("Nombre"),
                                 Apellido = reader.GetString("Apellido"),
                                 DNI = reader.GetString("Dni"),
