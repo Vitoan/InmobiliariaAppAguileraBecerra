@@ -27,6 +27,13 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Inquilino i)
         {
+            if (string.IsNullOrWhiteSpace(i.Nombre))
+                ModelState.AddModelError("Nombre", "El nombre es obligatorio.");
+            if (string.IsNullOrWhiteSpace(i.Apellido))
+                ModelState.AddModelError("Apellido", "El apellido es obligatorio.");
+            if (string.IsNullOrWhiteSpace(i.DNI))
+                ModelState.AddModelError("DNI", "El DNI es obligatorio.");
+
             if (ModelState.IsValid)
             {
                 _repositorio.Alta(i);
@@ -76,8 +83,20 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ConfirmarEliminar(int id)
         {
-            _repositorio.Baja(id);
-            TempData["Mensaje"] = "Inquilino eliminado con éxito.";
+            int resultado = _repositorio.Baja(id);
+
+            if (resultado == 0)
+            {
+                TempData["Error"] = "No se puede eliminar el inquilino porque tiene contratos asociados.";
+            }
+            else if (resultado > 0)
+            {
+                TempData["Success"] = "Inquilino eliminado con éxito.";
+            }
+            else
+            {
+                TempData["Error"] = "Ocurrió un error al intentar eliminar el inquilino.";
+            }
             return RedirectToAction(nameof(Index));
         }
     }
