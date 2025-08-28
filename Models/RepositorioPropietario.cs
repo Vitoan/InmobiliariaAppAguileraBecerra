@@ -13,8 +13,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
             using (var connection = GetConnection())
             {
                 string sql = @"INSERT INTO propietario (Nombre, Apellido, Dni, Telefono, Email, Clave)
-                           VALUES (@nombre, @apellido, @dni, @telefono, @email, @clave);
-                           SELECT LAST_INSERT_ID();";
+                               VALUES (@nombre, @apellido, @dni, @telefono, @email, @clave);
+                               SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -25,7 +25,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                     command.Parameters.AddWithValue("@email", p.Email);
                     command.Parameters.AddWithValue("@clave", p.Clave);
                     connection.Open();
-                    res = Convert.ToInt32(command.ExecuteScalar());
+                    res = Convert.ToInt32(command.ExecuteScalar() ?? 0);
                     p.Id = res;
                 }
             }
@@ -37,12 +37,22 @@ namespace InmobiliariaAppAguileraBecerra.Models
             int res = -1;
             using (var connection = GetConnection())
             {
-                string sql = "DELETE FROM propietario WHERE Id = @id";
-                using (var command = new MySqlCommand(sql, connection))
+                connection.Open();
+
+                string sqlChequeo = "SELECT COUNT(*) FROM inmueble WHERE PropietarioId = @id";
+                using (var cmdChequeo = new MySqlCommand(sqlChequeo, connection))
                 {
-                    command.CommandType = CommandType.Text;
+                    cmdChequeo.Parameters.AddWithValue("@id", id);
+                    int count = Convert.ToInt32(cmdChequeo.ExecuteScalar() ?? 0);
+
+                    if (count > 0)
+                        return 0;
+                }
+
+                string sqlDelete = "DELETE FROM propietario WHERE Id = @id";
+                using (var command = new MySqlCommand(sqlDelete, connection))
+                {
                     command.Parameters.AddWithValue("@id", id);
-                    connection.Open();
                     res = command.ExecuteNonQuery();
                 }
             }
@@ -55,8 +65,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
             using (var connection = GetConnection())
             {
                 string sql = @"UPDATE propietario
-                           SET Nombre=@nombre, Apellido=@apellido, Dni=@dni, Telefono=@telefono, Email=@email, Clave=@clave
-                           WHERE Id = @id";
+                               SET Nombre=@nombre, Apellido=@apellido, Dni=@dni, Telefono=@telefono, Email=@email, Clave=@clave
+                               WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -79,8 +89,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
             var res = new List<Propietario>();
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
-                           FROM propietario";
+                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave FROM propietario";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -92,12 +101,12 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             res.Add(new Propietario
                             {
                                 Id = reader.GetInt32("Id"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                DNI = reader.GetString("Dni"),
-                                Telefono = reader.GetString("Telefono"),
-                                Email = reader.GetString("Email"),
-                                Clave = reader.GetString("Clave")
+                                Nombre = reader.GetString("Nombre") ?? "",
+                                Apellido = reader.GetString("Apellido") ?? "",
+                                DNI = reader.GetString("Dni") ?? "",
+                                Telefono = reader.GetString("Telefono") ?? "",
+                                Email = reader.GetString("Email") ?? "",
+                                Clave = reader.GetString("Clave") ?? ""
                             });
                         }
                     }
@@ -106,64 +115,12 @@ namespace InmobiliariaAppAguileraBecerra.Models
             return res;
         }
 
-        public IList<Propietario> ObtenerLista(int paginaNro, int tamPagina)
+        public Propietario? ObtenerPorId(int id)
         {
-            var res = new List<Propietario>();
+            Propietario? p = null;
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
-                           FROM propietario
-                           ORDER BY Id
-                           LIMIT @tamPagina OFFSET @offset";
-                using (var command = new MySqlCommand(sql, connection))
-                {
-                    command.Parameters.AddWithValue("@tamPagina", tamPagina);
-                    command.Parameters.AddWithValue("@offset", (paginaNro - 1) * tamPagina);
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            res.Add(new Propietario
-                            {
-                                Id = reader.GetInt32("Id"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                DNI = reader.GetString("Dni"),
-                                Telefono = reader.GetString("Telefono"),
-                                Email = reader.GetString("Email"),
-                                Clave = reader.GetString("Clave")
-                            });
-                        }
-                    }
-                }
-            }
-            return res;
-        }
-
-        public int ObtenerCantidad()
-        {
-            int res = 0;
-            using (var connection = GetConnection())
-            {
-                string sql = "SELECT COUNT(Id) FROM propietario";
-                using (var command = new MySqlCommand(sql, connection))
-                {
-                    connection.Open();
-                    res = Convert.ToInt32(command.ExecuteScalar());
-                }
-            }
-            return res;
-        }
-
-        public Propietario ObtenerPorId(int id)
-        {
-            Propietario p = null;
-            using (var connection = GetConnection())
-            {
-                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
-                           FROM propietario
-                           WHERE Id=@id";
+                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave FROM propietario WHERE Id=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -176,85 +133,18 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             p = new Propietario
                             {
                                 Id = reader.GetInt32("Id"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                DNI = reader.GetString("Dni"),
-                                Telefono = reader.GetString("Telefono"),
-                                Email = reader.GetString("Email"),
-                                Clave = reader.GetString("Clave")
+                                Nombre = reader.GetString("Nombre") ?? "",
+                                Apellido = reader.GetString("Apellido") ?? "",
+                                DNI = reader.GetString("Dni") ?? "",
+                                Telefono = reader.GetString("Telefono") ?? "",
+                                Email = reader.GetString("Email") ?? "",
+                                Clave = reader.GetString("Clave") ?? ""
                             };
                         }
                     }
                 }
             }
             return p;
-        }
-
-        public Propietario ObtenerPorEmail(string email)
-        {
-            Propietario p = null;
-            using (var connection = GetConnection())
-            {
-                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
-                           FROM propietario
-                           WHERE Email=@email";
-                using (var command = new MySqlCommand(sql, connection))
-                {
-                    command.CommandType = CommandType.Text;
-                    command.Parameters.AddWithValue("@email", email);
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            p = new Propietario
-                            {
-                                Id = reader.GetInt32("Id"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                DNI = reader.GetString("Dni"),
-                                Telefono = reader.GetString("Telefono"),
-                                Email = reader.GetString("Email"),
-                                Clave = reader.GetString("Clave")
-                            };
-                        }
-                    }
-                }
-            }
-            return p;
-        }
-
-        public IList<Propietario> BuscarPorNombre(string nombre)
-        {
-            List<Propietario> res = new List<Propietario>();
-            using (var connection = GetConnection())
-            {
-                string sql = @"SELECT Id, Nombre, Apellido, Dni, Telefono, Email, Clave
-                           FROM propietario
-                           WHERE Nombre LIKE @nombre OR Apellido LIKE @nombre";
-                using (var command = new MySqlCommand(sql, connection))
-                {
-                    command.Parameters.AddWithValue("@nombre", "%" + nombre + "%");
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            res.Add(new Propietario
-                            {
-                                Id = reader.GetInt32("Id"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                DNI = reader.GetString("Dni"),
-                                Telefono = reader.GetString("Telefono"),
-                                Email = reader.GetString("Email"),
-                                Clave = reader.GetString("Clave")
-                            });
-                        }
-                    }
-                }
-            }
-            return res;
         }
     }
 }

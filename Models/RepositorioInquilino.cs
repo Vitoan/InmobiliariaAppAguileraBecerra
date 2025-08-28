@@ -12,10 +12,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
             int res = -1;
             using (var connection = GetConnection())
             {
-                string sql = @"INSERT INTO inquilino 
-                    (Nombre, Apellido, DNI, Telefono, Email)
-                    VALUES (@nombre, @apellido, @dni, @telefono, @email);
-                    SELECT LAST_INSERT_ID();";
+                string sql = @"INSERT INTO inquilino (Nombre, Apellido, DNI, Telefono, Email)
+                               VALUES (@nombre, @apellido, @dni, @telefono, @email);
+                               SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -25,7 +24,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                     command.Parameters.AddWithValue("@telefono", (object?)i.Telefono ?? DBNull.Value);
                     command.Parameters.AddWithValue("@email", (object?)i.Email ?? DBNull.Value);
                     connection.Open();
-                    res = Convert.ToInt32(command.ExecuteScalar());
+                    res = Convert.ToInt32(command.ExecuteScalar() ?? 0);
                     i.Id = res;
                 }
             }
@@ -37,10 +36,21 @@ namespace InmobiliariaAppAguileraBecerra.Models
             int res = -1;
             using (var connection = GetConnection())
             {
+                string sqlChequeo = "SELECT COUNT(*) FROM contrato WHERE InquilinoId = @id";
+                using (var cmdChequeo = new MySqlCommand(sqlChequeo, connection))
+                {
+                    cmdChequeo.Parameters.AddWithValue("@id", id);
+                    connection.Open();
+                    int count = Convert.ToInt32(cmdChequeo.ExecuteScalar() ?? 0);
+                    connection.Close();
+
+                    if (count > 0)
+                        return 0;
+                }
+
                 string sql = "DELETE FROM inquilino WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
-                    command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@id", id);
                     connection.Open();
                     res = command.ExecuteNonQuery();
@@ -55,8 +65,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
             using (var connection = GetConnection())
             {
                 string sql = @"UPDATE inquilino 
-                    SET Nombre=@nombre, Apellido=@apellido, DNI=@dni, Telefono=@telefono, Email=@email 
-                    WHERE Id = @id";
+                               SET Nombre=@nombre, Apellido=@apellido, DNI=@dni, Telefono=@telefono, Email=@email 
+                               WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -75,12 +85,10 @@ namespace InmobiliariaAppAguileraBecerra.Models
 
         public IList<Inquilino> ObtenerTodos()
         {
-            IList<Inquilino> res = new List<Inquilino>();
+            var res = new List<Inquilino>();
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT 
-                    Id, Nombre, Apellido, DNI, Telefono, Email
-                    FROM inquilino";
+                string sql = @"SELECT Id, Nombre, Apellido, DNI, Telefono, Email FROM inquilino";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -92,9 +100,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             res.Add(new Inquilino
                             {
                                 Id = reader.GetInt32("Id"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                DNI = reader.GetString("DNI"),
+                                Nombre = reader.GetString("Nombre") ?? "",
+                                Apellido = reader.GetString("Apellido") ?? "",
+                                DNI = reader.GetString("DNI") ?? "",
                                 Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono"),
                                 Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email")
                             });
@@ -105,14 +113,12 @@ namespace InmobiliariaAppAguileraBecerra.Models
             return res;
         }
 
-        public Inquilino ObtenerPorId(int id)
+        public Inquilino? ObtenerPorId(int id)
         {
-            Inquilino i = null;
+            Inquilino? i = null;
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT Id, Nombre, Apellido, DNI, Telefono, Email
-                    FROM inquilino
-                    WHERE Id = @id";
+                string sql = @"SELECT Id, Nombre, Apellido, DNI, Telefono, Email FROM inquilino WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -125,9 +131,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             i = new Inquilino
                             {
                                 Id = reader.GetInt32("Id"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                DNI = reader.GetString("DNI"),
+                                Nombre = reader.GetString("Nombre") ?? "",
+                                Apellido = reader.GetString("Apellido") ?? "",
+                                DNI = reader.GetString("DNI") ?? "",
                                 Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono"),
                                 Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email")
                             };
