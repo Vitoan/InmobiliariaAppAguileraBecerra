@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-09-2025 a las 17:40:35
+-- Tiempo de generación: 01-09-2025 a las 17:45:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -167,7 +167,8 @@ ALTER TABLE `inmueble`
 -- Indices de la tabla `inquilino`
 --
 ALTER TABLE `inquilino`
-  ADD PRIMARY KEY (`Id`);
+  ADD PRIMARY KEY (`Id`),
+  ADD UNIQUE KEY `DNI` (`DNI`);
 
 --
 -- Indices de la tabla `pago`
@@ -180,7 +181,8 @@ ALTER TABLE `pago`
 -- Indices de la tabla `propietario`
 --
 ALTER TABLE `propietario`
-  ADD PRIMARY KEY (`Id`);
+  ADD PRIMARY KEY (`Id`),
+  ADD UNIQUE KEY `DNI` (`DNI`);
 
 --
 -- Indices de la tabla `usuario`
