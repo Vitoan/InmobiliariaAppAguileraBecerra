@@ -24,5 +24,15 @@ namespace InmobiliariaAppAguileraBecerra.Models
 
         [EmailAddress, StringLength(100)]
         public string? Email { get; set; }
+
+        public override string ToString()
+        {
+            var res = $"{Nombre} {Apellido}";
+            if (!string.IsNullOrEmpty(DNI))
+            {
+                res += $" ({DNI})";
+            }
+            return res;
+        }
     }
 }

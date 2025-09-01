@@ -27,20 +27,6 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Propietario p)
         {
-
-            if (string.IsNullOrWhiteSpace(p.Nombre))
-                ModelState.AddModelError("Nombre", "El nombre es obligatorio.");
-            if (string.IsNullOrWhiteSpace(p.Apellido))
-                ModelState.AddModelError("Apellido", "El apellido es obligatorio.");
-            if (string.IsNullOrWhiteSpace(p.DNI))
-                ModelState.AddModelError("DNI", "El DNI es obligatorio.");
-            if (string.IsNullOrWhiteSpace(p.Telefono))
-                ModelState.AddModelError("Telefono", "El teléfono es obligatorio.");
-            if (string.IsNullOrWhiteSpace(p.Email))
-                ModelState.AddModelError("Email", "El email es obligatorio.");
-            if (string.IsNullOrWhiteSpace(p.Clave))
-                ModelState.AddModelError("Clave", "La clave es obligatoria.");
-
             if (ModelState.IsValid)
             {
                 _repositorio.Alta(p);
@@ -53,20 +39,14 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         public IActionResult Detalles(int id)
         {
             var p = _repositorio.ObtenerPorId(id);
-            if (p == null)
-            {
-                return NotFound();
-            }
+            if (p == null) return NotFound();
             return View(p);
         }
 
         public IActionResult Editar(int id)
         {
             var p = _repositorio.ObtenerPorId(id);
-            if (p == null)
-            {
-                return NotFound();
-            }
+            if (p == null) return NotFound();
             return View(p);
         }
 
@@ -74,10 +54,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Editar(int id, Propietario p)
         {
-            if (id != p.Id)
-            {
-                return BadRequest();
-            }
+            if (id != p.Id) return BadRequest();
 
             if (ModelState.IsValid)
             {
@@ -91,10 +68,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         public IActionResult Eliminar(int id)
         {
             var p = _repositorio.ObtenerPorId(id);
-            if (p == null)
-            {
-                return NotFound();
-            }
+            if (p == null) return NotFound();
             return View(p);
         }
 
@@ -106,7 +80,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
             if (resultado == 0)
             {
-                TempData["Error"] = "No se puede eliminar el propietario porque tiene inmuebles asociados.";
+                TempData["Error"] = "No se puede eliminar el propietario porque tiene contratos asociados.";
             }
             else if (resultado > 0)
             {
@@ -116,9 +90,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             {
                 TempData["Error"] = "Ocurrió un error al intentar eliminar el propietario.";
             }
-
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

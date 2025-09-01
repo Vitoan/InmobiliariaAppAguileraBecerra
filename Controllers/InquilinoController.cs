@@ -27,13 +27,6 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Inquilino i)
         {
-            if (string.IsNullOrWhiteSpace(i.Nombre))
-                ModelState.AddModelError("Nombre", "El nombre es obligatorio.");
-            if (string.IsNullOrWhiteSpace(i.Apellido))
-                ModelState.AddModelError("Apellido", "El apellido es obligatorio.");
-            if (string.IsNullOrWhiteSpace(i.DNI))
-                ModelState.AddModelError("DNI", "El DNI es obligatorio.");
-
             if (ModelState.IsValid)
             {
                 _repositorio.Alta(i);
