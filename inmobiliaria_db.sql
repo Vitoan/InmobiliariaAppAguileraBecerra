@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-09-2025 a las 17:45:24
+-- Tiempo de generación: 15-09-2025 a las 18:26:45
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -48,11 +48,14 @@ CREATE TABLE `auditoria` (
 
 CREATE TABLE `contrato` (
   `Id` int(11) NOT NULL,
-  `Inquilino_Id` int(11) NOT NULL,
-  `Inmueble_Id` int(11) NOT NULL,
+  `FechaInicio` date NOT NULL,
+  `FechaFin` date NOT NULL,
   `Monto` decimal(10,2) NOT NULL,
-  `FechaDesde` date NOT NULL,
-  `FechaHasta` date NOT NULL
+  `FechaFinAnticipada` date DEFAULT NULL,
+  `Multa` decimal(10,2) DEFAULT NULL,
+  `Vigente` tinyint(1) NOT NULL DEFAULT 1,
+  `InquilinoId` int(11) NOT NULL,
+  `InmuebleId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -63,11 +66,14 @@ CREATE TABLE `contrato` (
 
 CREATE TABLE `inmueble` (
   `Id` int(11) NOT NULL,
-  `Direccion` varchar(200) NOT NULL,
+  `Direccion` varchar(255) NOT NULL,
+  `Uso` varchar(50) NOT NULL,
+  `Tipo` varchar(50) NOT NULL,
   `Ambientes` int(11) NOT NULL,
-  `Superficie` int(11) NOT NULL,
-  `Latitud` decimal(10,6) DEFAULT NULL,
-  `Longitud` decimal(10,6) DEFAULT NULL,
+  `Latitud` decimal(10,8) DEFAULT NULL,
+  `Longitud` decimal(11,8) DEFAULT NULL,
+  `Precio` decimal(10,2) NOT NULL,
+  `Disponible` tinyint(1) NOT NULL DEFAULT 1,
   `PropietarioId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -153,15 +159,15 @@ ALTER TABLE `auditoria`
 --
 ALTER TABLE `contrato`
   ADD PRIMARY KEY (`Id`),
-  ADD KEY `fk_contrato_inquilino` (`Inquilino_Id`),
-  ADD KEY `fk_contrato_inmueble` (`Inmueble_Id`);
+  ADD KEY `InquilinoId` (`InquilinoId`),
+  ADD KEY `InmuebleId` (`InmuebleId`);
 
 --
 -- Indices de la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
   ADD PRIMARY KEY (`Id`),
-  ADD KEY `fk_inmueble_propietario` (`PropietarioId`);
+  ADD KEY `PropietarioId` (`PropietarioId`);
 
 --
 -- Indices de la tabla `inquilino`
@@ -245,14 +251,14 @@ ALTER TABLE `usuario`
 -- Filtros para la tabla `contrato`
 --
 ALTER TABLE `contrato`
-  ADD CONSTRAINT `fk_contrato_inmueble` FOREIGN KEY (`Inmueble_Id`) REFERENCES `inmueble` (`Id`),
-  ADD CONSTRAINT `fk_contrato_inquilino` FOREIGN KEY (`Inquilino_Id`) REFERENCES `inquilino` (`Id`);
+  ADD CONSTRAINT `contrato_ibfk_1` FOREIGN KEY (`InquilinoId`) REFERENCES `inquilino` (`Id`),
+  ADD CONSTRAINT `contrato_ibfk_2` FOREIGN KEY (`InmuebleId`) REFERENCES `inmueble` (`Id`);
 
 --
 -- Filtros para la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
-  ADD CONSTRAINT `fk_inmueble_propietario` FOREIGN KEY (`PropietarioId`) REFERENCES `propietario` (`Id`);
+  ADD CONSTRAINT `inmueble_ibfk_1` FOREIGN KEY (`PropietarioId`) REFERENCES `propietario` (`Id`);
 
 --
 -- Filtros para la tabla `pago`
