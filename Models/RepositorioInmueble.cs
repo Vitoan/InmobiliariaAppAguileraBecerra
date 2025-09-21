@@ -1,5 +1,6 @@
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.Collections.Generic;
 
 namespace InmobiliariaAppAguileraBecerra.Models
 {
@@ -8,34 +9,27 @@ namespace InmobiliariaAppAguileraBecerra.Models
         public int Alta(Inmueble i)
         {
             int res = -1;
-            try
+            using (var connection = GetConnection())
             {
-                using (var connection = GetConnection())
+                string sql = @"INSERT INTO inmueble (Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId)
+                               VALUES (@direccion, @uso, @tipo, @ambientes, @latitud, @longitud, @precio, @disponible, @propietarioId);
+                               SELECT LAST_INSERT_ID();";
+                using (var command = new MySqlCommand(sql, connection))
                 {
-                    string sql = @"INSERT INTO inmueble (Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId)
-                                   VALUES (@direccion, @uso, @tipo, @ambientes, @latitud, @longitud, @precio, @disponible, @propietarioId);
-                                   SELECT LAST_INSERT_ID();";
-                    using (var command = new MySqlCommand(sql, connection))
-                    {
-                        command.CommandType = CommandType.Text;
-                        command.Parameters.AddWithValue("@direccion", i.Direccion);
-                        command.Parameters.AddWithValue("@uso", i.Uso);
-                        command.Parameters.AddWithValue("@tipo", i.Tipo);
-                        command.Parameters.AddWithValue("@ambientes", i.Ambientes);
-                        command.Parameters.AddWithValue("@latitud", i.Latitud);
-                        command.Parameters.AddWithValue("@longitud", i.Longitud);
-                        command.Parameters.AddWithValue("@precio", i.Precio);
-                        command.Parameters.AddWithValue("@disponible", i.Disponible);
-                        command.Parameters.AddWithValue("@propietarioId", i.PropietarioId);
-                        connection.Open();
-                        res = Convert.ToInt32(command.ExecuteScalar() ?? 0);
-                        i.Id = res;
-                    }
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@direccion", i.Direccion);
+                    command.Parameters.AddWithValue("@uso", i.Uso);
+                    command.Parameters.AddWithValue("@tipo", i.Tipo);
+                    command.Parameters.AddWithValue("@ambientes", i.Ambientes);
+                    command.Parameters.AddWithValue("@latitud", i.Latitud);
+                    command.Parameters.AddWithValue("@longitud", i.Longitud);
+                    command.Parameters.AddWithValue("@precio", i.Precio);
+                    command.Parameters.AddWithValue("@disponible", i.Disponible);
+                    command.Parameters.AddWithValue("@propietarioId", i.PropietarioId);
+                    connection.Open();
+                    res = Convert.ToInt32(command.ExecuteScalar() ?? 0);
+                    i.Id = res;
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al crear el inmueble.", ex);
             }
             return res;
         }
@@ -43,34 +37,27 @@ namespace InmobiliariaAppAguileraBecerra.Models
         public int Modificacion(Inmueble i)
         {
             int res = -1;
-            try
+            using (var connection = GetConnection())
             {
-                using (var connection = GetConnection())
+                string sql = @"UPDATE inmueble
+                               SET Direccion=@direccion, Uso=@uso, Tipo=@tipo, Ambientes=@ambientes, Latitud=@latitud, Longitud=@longitud, Precio=@precio, Disponible=@disponible, PropietarioId=@propietarioId
+                               WHERE Id = @id";
+                using (var command = new MySqlCommand(sql, connection))
                 {
-                    string sql = @"UPDATE inmueble
-                                   SET Direccion=@direccion, Uso=@uso, Tipo=@tipo, Ambientes=@ambientes, Latitud=@latitud, Longitud=@longitud, Precio=@precio, Disponible=@disponible, PropietarioId=@propietarioId
-                                   WHERE Id = @id";
-                    using (var command = new MySqlCommand(sql, connection))
-                    {
-                        command.CommandType = CommandType.Text;
-                        command.Parameters.AddWithValue("@direccion", i.Direccion);
-                        command.Parameters.AddWithValue("@uso", i.Uso);
-                        command.Parameters.AddWithValue("@tipo", i.Tipo);
-                        command.Parameters.AddWithValue("@ambientes", i.Ambientes);
-                        command.Parameters.AddWithValue("@latitud", i.Latitud);
-                        command.Parameters.AddWithValue("@longitud", i.Longitud);
-                        command.Parameters.AddWithValue("@precio", i.Precio);
-                        command.Parameters.AddWithValue("@disponible", i.Disponible);
-                        command.Parameters.AddWithValue("@propietarioId", i.PropietarioId);
-                        command.Parameters.AddWithValue("@id", i.Id);
-                        connection.Open();
-                        res = command.ExecuteNonQuery();
-                    }
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@direccion", i.Direccion);
+                    command.Parameters.AddWithValue("@uso", i.Uso);
+                    command.Parameters.AddWithValue("@tipo", i.Tipo);
+                    command.Parameters.AddWithValue("@ambientes", i.Ambientes);
+                    command.Parameters.AddWithValue("@latitud", i.Latitud);
+                    command.Parameters.AddWithValue("@longitud", i.Longitud);
+                    command.Parameters.AddWithValue("@precio", i.Precio);
+                    command.Parameters.AddWithValue("@disponible", i.Disponible);
+                    command.Parameters.AddWithValue("@propietarioId", i.PropietarioId);
+                    command.Parameters.AddWithValue("@id", i.Id);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al modificar el inmueble.", ex);
             }
             return res;
         }
@@ -78,91 +65,77 @@ namespace InmobiliariaAppAguileraBecerra.Models
         public IList<Inmueble> ObtenerTodos()
         {
             var res = new List<Inmueble>();
-            try
+            using (var connection = GetConnection())
             {
-                using (var connection = GetConnection())
+                string sql = @"SELECT i.Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId, p.Nombre, p.Apellido, p.DNI
+                               FROM inmueble i
+                               INNER JOIN propietario p ON i.PropietarioId = p.Id";
+                using (var command = new MySqlCommand(sql, connection))
                 {
-                    string sql = @"SELECT i.Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId, p.Nombre, p.Apellido, p.DNI
-                                   FROM inmueble i
-                                   INNER JOIN propietario p ON i.PropietarioId = p.Id";
-                    using (var command = new MySqlCommand(sql, connection))
+                    command.CommandType = CommandType.Text;
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
                     {
-                        command.CommandType = CommandType.Text;
-                        connection.Open();
-                        using (var reader = command.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            res.Add(new Inmueble
                             {
-                                res.Add(new Inmueble
+                                Id = reader.GetInt32("Id"),
+                                Direccion = reader.GetString("Direccion") ?? "",
+                                Uso = reader.GetString("Uso") ?? "",
+                                Tipo = reader.GetString("Tipo") ?? "",
+                                Ambientes = reader.GetInt32("Ambientes"),
+                                Latitud = reader.GetDecimal("Latitud"),
+                                Longitud = reader.GetDecimal("Longitud"),
+                                Precio = reader.GetDecimal("Precio"),
+                                Disponible = reader.GetBoolean("Disponible"),
+                                PropietarioId = reader.GetInt32("PropietarioId"),
+                                Duenio = new Propietario
                                 {
-                                    Id = reader.GetInt32("Id"),
-                                    Direccion = reader.GetString("Direccion") ?? "",
-                                    Uso = reader.GetString("Uso") ?? "",
-                                    Tipo = reader.GetString("Tipo") ?? "",
-                                    Ambientes = reader.GetInt32("Ambientes"),
-                                    Latitud = reader.GetDecimal("Latitud"),
-                                    Longitud = reader.GetDecimal("Longitud"),
-                                    Precio = reader.GetDecimal("Precio"),
-                                    Disponible = reader.GetBoolean("Disponible"),
-                                    PropietarioId = reader.GetInt32("PropietarioId"),
-                                    Duenio = new Propietario
-                                    {
-                                        Id = reader.GetInt32("PropietarioId"),
-                                        Nombre = reader.GetString("Nombre") ?? "",
-                                        Apellido = reader.GetString("Apellido") ?? "",
-                                        DNI = reader.GetString("DNI") ?? ""
-                                    }
-                                });
-                            }
+                                    Id = reader.GetInt32("PropietarioId"),
+                                    Nombre = reader.GetString("Nombre") ?? "",
+                                    Apellido = reader.GetString("Apellido") ?? "",
+                                    DNI = reader.GetString("DNI") ?? ""
+                                }
+                            });
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener los inmuebles.", ex);
             }
             return res;
         }
-        
+
         public Inmueble? ObtenerPorId(int id)
         {
             Inmueble? i = null;
-            try
+            using (var connection = GetConnection())
             {
-                using (var connection = GetConnection())
+                string sql = @"SELECT Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId
+                               FROM inmueble WHERE Id = @id";
+                using (var command = new MySqlCommand(sql, connection))
                 {
-                    string sql = @"SELECT Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId
-                                   FROM inmueble WHERE Id = @id";
-                    using (var command = new MySqlCommand(sql, connection))
+                    command.Parameters.AddWithValue("@id", id);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
                     {
-                        command.Parameters.AddWithValue("@id", id);
-                        connection.Open();
-                        using (var reader = command.ExecuteReader())
+                        if (reader.Read())
                         {
-                            if (reader.Read())
+                            i = new Inmueble
                             {
-                                i = new Inmueble
-                                {
-                                    Id = reader.GetInt32("Id"),
-                                    Direccion = reader.GetString("Direccion") ?? "",
-                                    Uso = reader.GetString("Uso") ?? "",
-                                    Tipo = reader.GetString("Tipo") ?? "",
-                                    Ambientes = reader.GetInt32("Ambientes"),
-                                    Latitud = reader.GetDecimal("Latitud"),
-                                    Longitud = reader.GetDecimal("Longitud"),
-                                    Precio = reader.GetDecimal("Precio"),
-                                    Disponible = reader.GetBoolean("Disponible"),
-                                    PropietarioId = reader.GetInt32("PropietarioId")
-                                };
-                            }
+                                Id = reader.GetInt32("Id"),
+                                Direccion = reader.GetString("Direccion") ?? "",
+                                Uso = reader.GetString("Uso") ?? "",
+                                Tipo = reader.GetString("Tipo") ?? "",
+                                Ambientes = reader.GetInt32("Ambientes"),
+                                Latitud = reader.GetDecimal("Latitud"),
+                                Longitud = reader.GetDecimal("Longitud"),
+                                Precio = reader.GetDecimal("Precio"),
+                                Disponible = reader.GetBoolean("Disponible"),
+                                PropietarioId = reader.GetInt32("PropietarioId")
+                            };
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al obtener el inmueble con ID {id}.", ex);
             }
             return i;
         }
@@ -170,31 +143,151 @@ namespace InmobiliariaAppAguileraBecerra.Models
         public int Baja(int id)
         {
             int res = -1;
-            try
+            using (var connection = GetConnection())
             {
-                using (var connection = GetConnection())
+                connection.Open();
+                string sqlChequeo = "SELECT COUNT(*) FROM contrato WHERE InmuebleId = @id AND Vigente = TRUE";
+                using (var cmdChequeo = new MySqlCommand(sqlChequeo, connection))
                 {
-                    connection.Open();
-                    string sqlChequeo = "SELECT COUNT(*) FROM contrato WHERE InmuebleId = @id AND Vigente = TRUE";
-                    using (var cmdChequeo = new MySqlCommand(sqlChequeo, connection))
-                    {
-                        cmdChequeo.Parameters.AddWithValue("@id", id);
-                        int count = Convert.ToInt32(cmdChequeo.ExecuteScalar() ?? 0);
-                        if (count > 0)
-                            return 0;
-                    }
+                    cmdChequeo.Parameters.AddWithValue("@id", id);
+                    int count = Convert.ToInt32(cmdChequeo.ExecuteScalar() ?? 0);
+                    if (count > 0)
+                        return 0;
+                }
 
-                    string sqlDelete = "DELETE FROM inmueble WHERE Id = @id";
-                    using (var command = new MySqlCommand(sqlDelete, connection))
+                string sqlDelete = "DELETE FROM inmueble WHERE Id = @id";
+                using (var command = new MySqlCommand(sqlDelete, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    res = command.ExecuteNonQuery();
+                }
+            }
+            return res;
+        }
+
+        public IList<Inmueble> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
+        {
+            IList<Inmueble> res = new List<Inmueble>();
+            using (var connection = GetConnection())
+            {
+                string sql = @"
+                    SELECT i.Id, i.Direccion, i.Uso, i.Tipo, i.Ambientes, i.Latitud, i.Longitud, i.Precio, i.Disponible, i.PropietarioId,
+                           p.Nombre, p.Apellido, p.DNI
+                    FROM inmueble i
+                    INNER JOIN propietario p ON i.PropietarioId = p.Id
+                    ORDER BY i.Id
+                    LIMIT @tamPagina OFFSET @offset";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@tamPagina", tamPagina);
+                    command.Parameters.AddWithValue("@offset", (paginaNro - 1) * tamPagina);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
                     {
-                        command.Parameters.AddWithValue("@id", id);
-                        res = command.ExecuteNonQuery();
+                        while (reader.Read())
+                        {
+                            res.Add(new Inmueble
+                            {
+                                Id = reader.GetInt32("Id"),
+                                Direccion = reader.GetString("Direccion") ?? "",
+                                Uso = reader.GetString("Uso") ?? "",
+                                Tipo = reader.GetString("Tipo") ?? "",
+                                Ambientes = reader.GetInt32("Ambientes"),
+                                Latitud = reader.GetDecimal("Latitud"),
+                                Longitud = reader.GetDecimal("Longitud"),
+                                Precio = reader.GetDecimal("Precio"),
+                                Disponible = reader.GetBoolean("Disponible"),
+                                PropietarioId = reader.GetInt32("PropietarioId"),
+                                Duenio = new Propietario
+                                {
+                                    Id = reader.GetInt32("PropietarioId"),
+                                    Nombre = reader.GetString("Nombre") ?? "",
+                                    Apellido = reader.GetString("Apellido") ?? "",
+                                    DNI = reader.GetString("DNI") ?? ""
+                                }
+                            });
+                        }
                     }
                 }
             }
-            catch (Exception ex)
+            return res;
+        }
+
+        public int ObtenerCantidad()
+        {
+            int res = 0;
+            using (var connection = GetConnection())
             {
-                throw new Exception("Error al eliminar el inmueble.", ex);
+                string sql = "SELECT COUNT(*) FROM inmueble";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    res = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+            return res;
+        }
+
+        public IList<Inmueble> BuscarPorPropietario(int idPropietario)
+        {
+            List<Inmueble> res = new List<Inmueble>();
+            using (var connection = GetConnection())
+            {
+                string sql = @"
+                    SELECT i.Id, Direccion, Ambientes, Latitud, Longitud, PropietarioId, p.Nombre, p.Apellido
+                    FROM inmueble i 
+                    JOIN propietario p ON i.PropietarioId = p.Id
+                    WHERE PropietarioId=@idPropietario";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idPropietario", idPropietario);
+                    command.CommandType = CommandType.Text;
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            res.Add(new Inmueble
+                            {
+                                Id = reader.GetInt32("Id"),
+                                Direccion = reader.GetString("Direccion") ?? "",
+                                Ambientes = reader.GetInt32("Ambientes"),
+                                Latitud = reader.GetDecimal("Latitud"),
+                                Longitud = reader.GetDecimal("Longitud"),
+                                PropietarioId = reader.GetInt32("PropietarioId"),
+                                Duenio = new Propietario
+                                {
+                                    Id = reader.GetInt32("PropietarioId"),
+                                    Nombre = reader.GetString("Nombre") ?? "",
+                                    Apellido = reader.GetString("Apellido") ?? "",
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int ModificarPortada(int id, string url)
+        {
+            int res = -1;
+            using (var connection = GetConnection()) // usa MySqlConnection
+            {
+                string sql = @"
+                    UPDATE inmueble SET
+                    Portada=@portada
+                    WHERE Id = @id";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(url) ? DBNull.Value : url);
+                    command.Parameters.AddWithValue("@id", id);
+                    command.CommandType = CommandType.Text;
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                }
             }
             return res;
         }

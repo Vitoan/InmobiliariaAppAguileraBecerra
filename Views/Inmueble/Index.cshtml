@@ -1,0 +1,74 @@
+@model IEnumerable<InmobiliariaAppAguileraBecerra.Models.Inmueble>
+
+@{
+    ViewData["Title"] = "Listado de Inmuebles";
+    var rnd = new Random();
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-success" asp-action="Crear">
+        <i class="bi bi-plus-circle"></i> Nuevo Inmueble
+    </a>
+</p>
+
+<table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Id)</th>
+            <th>@Html.DisplayNameFor(model => model.Direccion)</th>
+            <th>@Html.DisplayNameFor(model => model.Ambientes)</th>
+            <th>Propietario</th>
+            <th>@Html.DisplayNameFor(model => model.Portada)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Direccion</td>
+                    <td>@item.Ambientes</td>
+                    <td>@(item.Duenio != null ? item.Duenio.ToString() : "Sin propietario")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Portada))
+                        {
+                            var x = item.Portada + "?" + rnd.Next();
+                            <img src="@x" width="50" class="img-thumbnail" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin foto</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@item.Id" title="Editar">
+                                <i class="bi bi-pencil-square">Editar</i>
+                            </a>
+                            <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar">
+                                <i class="bi bi-trash">Eliminar</i>
+                            </a>
+                            <a class="btn btn-secondary btn-sm" asp-action="Ver" asp-route-id="@item.Id" title="Ver">
+                                <i class="bi bi-eye">Ver</i>
+                            </a>
+                            <a class="btn btn-secondary btn-sm" asp-action="Imagenes" asp-route-id="@item.Id" title="Ver imágenes">
+                                <i class="bi bi-images">Imagenes</i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">No hay inmuebles registrados.</td>
+            </tr>
+        }
+    </tbody>
+</table>

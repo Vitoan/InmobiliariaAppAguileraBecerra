@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -35,5 +36,13 @@ namespace InmobiliariaAppAguileraBecerra.Models
 
         [ForeignKey(nameof(PropietarioId))]
         public Propietario? Duenio { get; set; }
+
+        // NUEVAS PROPIEDADES PARA IMÁGENES
+        public bool Habilitado { get; set; } = true;
+
+        public string? Portada { get; set; } // URL de la imagen principal
+
+        // Lista de imágenes relacionadas
+        public List<Imagen>? Imagenes { get; set; }
     }
 }

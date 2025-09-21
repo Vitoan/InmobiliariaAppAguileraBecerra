@@ -1,63 +1,59 @@
 @model IEnumerable<InmobiliariaAppAguileraBecerra.Models.Contrato>
 
 @{
-    ViewData["Title"] = "Contratos";
+    ViewData["Title"] = "Listado de Contratos";
 }
 
-<h1>Listado de Contratos</h1>
+<h1 class="mb-4 text-primary"><i class="bi bi-file-earmark-text-fill"></i> @ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Crear" class="btn btn-primary">Crear Nuevo Contrato</a>
+    <a class="btn btn-success" asp-action="Crear">
+        <i class="bi bi-plus-circle"></i> Nuevo Contrato
+    </a>
 </p>
-<table class="table">
-    <thead>
+
+<table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Inquilino)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Inmueble)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaInicio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaFin)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Monto)
-            </th>
+            <th>@Html.DisplayNameFor(model => model.Id)</th>
+            <th>Inquilino</th>
+            <th>Inmueble</th>
+            <th>@Html.DisplayNameFor(model => model.FechaInicio)</th>
+            <th>@Html.DisplayNameFor(model => model.FechaFin)</th>
+            <th>@Html.DisplayNameFor(model => model.Monto)</th>
             <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@(item.Inquilino != null ? $"{item.Inquilino.Nombre} {item.Inquilino.Apellido}" : "Sin inquilino")</td>
+                    <td>@(item.Inmueble != null ? item.Inmueble.Direccion : "Sin inmueble")</td>
+                    <td>@item.FechaInicio.ToShortDateString()</td>
+                    <td>@item.FechaFin.ToShortDateString()</td>
+                    <td>@item.Monto.ToString("C")</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@item.Id" title="Editar">
+                                <i class="bi bi-pencil-square">Editar</i>
+                            </a>
+                            <a class="btn btn-info btn-sm" asp-action="Detalles" asp-route-id="@item.Id" title="Detalles">
+                                <i class="bi bi-eye">Detalles</i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @item.InquilinoNombre
-                </td>
-                <td>
-                    @item.InmuebleDireccion
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaInicio)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaFin)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Monto)
-                </td>
-                <td>
-                    <a asp-action="Editar" asp-route-id="@item.Id">Editar</a> |
-                    <a asp-action="Detalles" asp-route-id="@item.Id">Detalles</a>
+                <td colspan="7" class="text-center text-muted">
+                    <i class="bi bi-exclamation-triangle-fill"></i> No hay contratos registrados.
                 </td>
             </tr>
         }

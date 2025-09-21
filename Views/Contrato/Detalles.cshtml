@@ -10,50 +10,45 @@
     <h4>Contrato</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Id)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Id)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Inquilino)</dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Id)
+            @(Model.Inquilino != null 
+                ? $"{Model.Inquilino.Nombre} {Model.Inquilino.Apellido}" 
+                : "No definido")
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Inquilino)
-        </dt>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Inmueble)</dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Inquilino.Nombre) @Html.DisplayFor(model => model.Inquilino.Apellido)
+            @(Model.Inmueble != null 
+                ? Model.Inmueble.Direccion 
+                : "No definido")
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Inmueble)
-        </dt>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FechaInicio)</dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Inmueble.Direccion)
+            @Model.FechaInicio.ToShortDateString()
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaInicio)
-        </dt>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FechaFin)</dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.FechaInicio)
+            @Model.FechaFin.ToShortDateString()
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaFin)
-        </dt>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Monto)</dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.FechaFin)
+            @Model.Monto.ToString("C")
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Monto)
-        </dt>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Vigente)</dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Monto)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Vigente)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Vigente)
+            @(Model.Vigente ? "Sí" : "No")
         </dd>
     </dl>
 </div>
+
 <div>
     <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
     <a asp-action="Index" class="btn btn-secondary">Volver</a>
