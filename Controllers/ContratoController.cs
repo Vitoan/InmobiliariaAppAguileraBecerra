@@ -25,8 +25,13 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         public IActionResult Crear()
         {
-            ViewBag.Inquilinos = new SelectList(_repositorioInquilino.ObtenerTodos(), "Id", "Nombre", null);
-            ViewBag.Inmuebles = new SelectList(_repositorioInmueble.ObtenerTodos(), "Id", "Direccion", null);
+            var inquilinos = _repositorioInquilino.ObtenerTodos().Select(i => new 
+            {
+                Id = i.Id, NombreCompleto = $"{i.Nombre} {i.Apellido}"
+            }).ToList();
+
+            ViewBag.Inquilinos = new SelectList(inquilinos, "Id", "NombreCompleto");
+            ViewBag.Inmuebles = new SelectList(_repositorioInmueble.ObtenerTodos(), "Id", "Direccion");
             return View();
         }
 
@@ -56,7 +61,9 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         {
             var contrato = _repositorioContrato.ObtenerPorId(id);
             if (contrato == null) return NotFound();
-            ViewBag.Inquilinos = new SelectList(_repositorioInquilino.ObtenerTodos(), "Id", "Nombre", contrato.InquilinoId);
+            ViewBag.Inquilinos = new SelectList(
+                _repositorioInquilino.ObtenerTodos().Select(i => new { Id = i.Id, NombreCompleto = $"{i.Nombre} {i.Apellido}" }), "Id", "NombreCompleto", contrato.InquilinoId
+            );
             ViewBag.Inmuebles = new SelectList(_repositorioInmueble.ObtenerTodos(), "Id", "Direccion", contrato.InmuebleId);
             return View(contrato);
         }

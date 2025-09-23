@@ -28,7 +28,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
         public DateTime? FechaFinAnticipada { get; set; }
         
         [Display(Name = "Multa")]
-        public decimal Multa { get; set; }
+        public decimal? Multa { get; set; }
 
         [Display(Name = "Estado")]
         public bool Vigente { get; set; } = true;

@@ -77,14 +77,13 @@ namespace InmobiliariaAppAguileraBecerra.Models
                 using (var connection = GetConnection())
                 {
                     string sql = @"SELECT c.Id, c.FechaInicio, c.FechaFin, c.Monto, c.InquilinoId, c.InmuebleId, c.Vigente,
-                                   i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido,
-                                   inm.Direccion AS InmuebleDireccion
-                                   FROM contrato c
-                                   INNER JOIN inquilino i ON c.InquilinoId = i.Id
-                                   INNER JOIN inmueble inm ON c.InmuebleId = inm.Id";
+                           i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido,
+                           inm.Direccion AS InmuebleDireccion
+                           FROM contrato c
+                           INNER JOIN inquilino i ON c.InquilinoId = i.Id
+                           INNER JOIN inmueble inm ON c.InmuebleId = inm.Id";
                     using (var command = new MySqlCommand(sql, connection))
                     {
-                        command.CommandType = CommandType.Text;
                         connection.Open();
                         using (var reader = command.ExecuteReader())
                         {
@@ -99,8 +98,17 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                     InquilinoId = reader.GetInt32("InquilinoId"),
                                     InmuebleId = reader.GetInt32("InmuebleId"),
                                     Vigente = reader.GetBoolean("Vigente"),
-                                    InquilinoNombre = $"{reader.GetString("InquilinoNombre")} {reader.GetString("InquilinoApellido")}",
-                                    InmuebleDireccion = reader.GetString("InmuebleDireccion") ?? ""
+                                    Inquilino = new Inquilino
+                                    {
+                                        Id = reader.GetInt32("InquilinoId"),
+                                        Nombre = reader.GetString("InquilinoNombre"),
+                                        Apellido = reader.GetString("InquilinoApellido")
+                                    },
+                                    Inmueble = new Inmueble
+                                    {
+                                        Id = reader.GetInt32("InmuebleId"),
+                                        Direccion = reader.GetString("InmuebleDireccion")
+                                    }
                                 });
                             }
                         }
@@ -113,6 +121,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return res;
         }
+
 
         public Contrato? ObtenerPorId(int id)
         {
@@ -146,7 +155,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                     InmuebleId = reader.GetInt32("InmuebleId"),
                                     Vigente = reader.GetBoolean("Vigente"),
                                     FechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada")) ? null : reader.GetDateTime("FechaFinAnticipada"),
-                                    Multa = reader.GetDecimal("Multa"),
+                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa")) ? null : reader.GetDecimal("Multa"),
                                     Inquilino = new Inquilino
                                     {
                                         Id = reader.GetInt32("InquilinoId"),
