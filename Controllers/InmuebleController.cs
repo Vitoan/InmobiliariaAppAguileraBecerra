@@ -149,9 +149,8 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 		{
 			try
 			{
-				ViewBag.Propietarios = repoPropietario.ObtenerTodos();
-				//ViewData["Propietarios"] = repoPropietario.ObtenerTodos();
-				//ViewData[nameof(Propietario)] = repoPropietario.ObtenerTodos();
+				ViewData["Propietarios"] = repoPropietario.ObtenerTodos();
+				
 				return View();
 			}
 			catch (Exception)

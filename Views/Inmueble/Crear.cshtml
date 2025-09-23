@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Crear";
-    var ltaPropietarios = (IList<Propietario>?)ViewBag.Propietario ?? new List<Propietario>();
+    var ltaPropietarios = (IList<Propietario>?)ViewData["Propietarios"] ?? new List<Propietario>();
 }
 
 <h1>Crear Inmueble</h1>
