@@ -11,6 +11,6 @@ namespace InmobiliariaAppAguileraBecerra.Models
 
         public DbSet<Inmueble> Inmuebles { get; set; }
         public DbSet<Propietario> Propietarios { get; set; }
-        public DbSet<Imagen> Imagenes { get; set; }
+        public DbSet<Imagen> imagen { get; set; }
     }
 }

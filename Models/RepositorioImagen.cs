@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using InmobiliariaAppAguileraBecerra.Models; // <- esto es clave para que Reconozca Imagen e InmobiliariaContext
+using InmobiliariaAppAguileraBecerra.Models;
 
 namespace InmobiliariaAppAguileraBecerra.Models
 {
@@ -16,23 +16,23 @@ namespace InmobiliariaAppAguileraBecerra.Models
 
         public List<Imagen> BuscarPorInmueble(int inmuebleId)
         {
-            return _context.Imagenes
+            return _context.imagen
                            .Where(i => i.InmuebleId == inmuebleId)
                            .ToList();
         }
 
         public void Agregar(Imagen imagen)
         {
-            _context.Imagenes.Add(imagen);
+            _context.imagen.Add(imagen);
             _context.SaveChanges();
         }
 
         public void Eliminar(int id)
         {
-            var img = _context.Imagenes.Find(id);
+            var img = _context.imagen.Find(id);
             if (img != null)
             {
-                _context.Imagenes.Remove(img);
+                _context.imagen.Remove(img);
                 _context.SaveChanges();
             }
         }

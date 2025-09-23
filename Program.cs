@@ -9,9 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Configurar servicios
 builder.Services.AddControllersWithViews();
 
-// Registrar DbContext con la conexión a tu base de datos
+// Obtener la cadena de conexión de appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("InmobiliariaContext");
+
+// Registrar DbContext con MySQL
 builder.Services.AddDbContext<InmobiliariaContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 // Registrar repositorios
 builder.Services.AddScoped<RepositorioPropietario>();
@@ -19,10 +22,11 @@ builder.Services.AddScoped<RepositorioInquilino>();
 builder.Services.AddScoped<RepositorioInmueble>();
 builder.Services.AddScoped<RepositorioContrato>();
 builder.Services.AddScoped<RepositorioImagen>();
+builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 
 var app = builder.Build();
 
-// Configurar el pipeline de solicitudes HTTP
+// Configurar pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -33,7 +37,6 @@ else
     app.UseHsts();
 }
 
-// app.UseHttpsRedirection(); // Comentado para evitar problemas, como en tu código
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();

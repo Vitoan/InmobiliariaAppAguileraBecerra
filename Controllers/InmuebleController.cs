@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using InmobiliariaAppAguileraBecerra.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {
@@ -47,12 +48,22 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 			return Ok(lista);
 		}
 
-		// GET: Inmuebles/Details/5
+		// GET: Inmuebles/Ver/5
 		public ActionResult Ver(int id)
 		{
-			var entidad = id == 0 ? new Inmueble() : repositorio.ObtenerPorId(id);
-			return View(entidad);
+    		var entidad = id == 0 ? new Inmueble() : repositorio.ObtenerPorId(id);
+
+		    ViewBag.Propietarios = repoPropietario.ObtenerTodos()
+		        .Select(p => new SelectListItem
+        		{
+            		Value = p.Id.ToString(),
+            		Text = $"{p.Nombre} {p.Apellido}",
+            		Selected = entidad != null && entidad.PropietarioId == p.Id
+        		}).ToList();
+
+    		return View(entidad);
 		}
+
 
 		// POST: Inmuebles/Create
 		[HttpPost]

@@ -40,13 +40,7 @@
 
             <div class="form-group">
                 <label class="control-label">Propietario</label>
-                <select id="Propietario" class="form-control" name="PropietarioId">
-                    @if(Id > 0){
-                        <option value="@Model?.PropietarioId" selected>
-                            @Model?.Duenio?.Nombre @Model?.Duenio?.Apellido
-                        </option>
-                    }
-                </select>
+                <select asp-for="PropietarioId" class="form-control" asp-items="ViewBag.Propietarios"></select>
             </div>
 
             <div class="form-group">
@@ -87,6 +81,9 @@
             $('#mapa').html('<p class="text-muted p-3">Ubicación no disponible.</p>');
         }
 
+        // -----------------------------------------------------------
+        // Búsqueda de propietarios por AJAX (de momento no lo implementamos, pero la idea es usarlo).
+        /*
         $('#Propietario').select2({
             language: "es",
             theme: 'bootstrap',
@@ -115,6 +112,8 @@
             var option = new Option(textoOriginal, idOriginal, true, true);
             $("#Propietario").append(option).trigger('change');
         }
+        */
+        // -----------------------------------------------------------
     });
 </script>
 }
