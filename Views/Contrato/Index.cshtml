@@ -39,10 +39,17 @@
                     <td>
                         <div class="btn-group" role="group">
                             <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@item.Id" title="Editar">
-                                <i class="bi bi-pencil-square">Editar</i>
+                                <i class="bi bi-pencil-square"></i> Editar
                             </a>
                             <a class="btn btn-info btn-sm" asp-action="Detalles" asp-route-id="@item.Id" title="Detalles">
-                                <i class="bi bi-eye">Detalles</i>
+                                <i class="bi bi-eye"></i> Detalles
+                            </a>
+                            <a class="btn btn-warning btn-sm"
+                               asp-controller="Pago"
+                               asp-action="Index"
+                               asp-route-contratoId="@item.Id"
+                               title="Ver Pagos">
+                                <i class="bi bi-cash-stack"></i> Pagos
                             </a>
                         </div>
                     </td>
@@ -59,3 +66,8 @@
         }
     </tbody>
 </table>
+<div>
+    <a class="btn btn-secondary" asp-action="Index" asp-controller="Home">
+        <i class="bi bi-arrow-left-circle"></i> Volver al Inicio
+    </a>
+</div>

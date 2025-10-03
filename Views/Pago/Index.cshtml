@@ -1,0 +1,64 @@
+@model IEnumerable<InmobiliariaAppAguileraBecerra.Models.Pago>
+@{
+    ViewData["Title"] = "Pagos";
+    var contrato = ViewBag.Contrato;
+}
+
+<h2>Pagos del Contrato #@contrato?.Id</h2>
+<p>
+    <a class="btn btn-success" asp-action="Crear" asp-route-contratoId="@contrato?.Id">
+        <i class="bi bi-plus-circle"></i> Nuevo Pago
+    </a>
+    <a class="btn btn-secondary" asp-controller="Contrato" asp-action="Index">Volver a Contratos</a>
+</p>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Número</th>
+            <th>Fecha</th>
+            <th>Importe</th>
+            <th>Detalle</th>
+            <th>Anulado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var p in Model)
+            {
+                <tr class="@(p.Anulado ? "table-danger" : "")">
+                    <td>@p.Numero</td>
+                    <td>@p.Fecha.ToShortDateString()</td>
+                    <td>$ @p.Importe</td>
+                    <td>@p.Detalle</td>
+                    <td>@(p.Anulado ? "Sí" : "No")</td>
+                    <td>
+                        @if (!p.Anulado)
+                        {
+                            <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@p.Id">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                            <form asp-action="Anular" asp-route-id="@p.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-x-circle"></i> Anular
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Anulado</span>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">No hay pagos registrados.</td>
+            </tr>
+        }
+    </tbody>
+</table>

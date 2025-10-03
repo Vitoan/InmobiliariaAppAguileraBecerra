@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Detalles del Contrato";
+    var pagos = ViewBag.Pagos as IEnumerable<InmobiliariaAppAguileraBecerra.Models.Pago>;
 }
 
 <h2>Detalles del Contrato</h2>
@@ -28,26 +29,62 @@
         </dd>
 
         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FechaInicio)</dt>
-        <dd class="col-sm-10">
-            @Model.FechaInicio.ToShortDateString()
-        </dd>
+        <dd class="col-sm-10">@Model.FechaInicio.ToShortDateString()</dd>
 
         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FechaFin)</dt>
-        <dd class="col-sm-10">
-            @Model.FechaFin.ToShortDateString()
-        </dd>
+        <dd class="col-sm-10">@Model.FechaFin.ToShortDateString()</dd>
 
         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Monto)</dt>
-        <dd class="col-sm-10">
-            @Model.Monto.ToString("C")
-        </dd>
+        <dd class="col-sm-10">@Model.Monto.ToString("C")</dd>
 
         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Vigente)</dt>
-        <dd class="col-sm-10">
-            @(Model.Vigente ? "Sí" : "No")
-        </dd>
+        <dd class="col-sm-10">@(Model.Vigente ? "Sí" : "No")</dd>
     </dl>
 </div>
+
+<hr />
+
+<h4>Pagos Asociados</h4>
+
+@if (pagos != null && pagos.Any())
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            {{-- ... Encabezados de tabla ... --}}
+        </thead>
+        <tbody>
+            @foreach (var p in pagos.Take(5))
+            {
+                <tr class="@(p.Anulado ? "table-danger" : "")">
+                    <td>@p.Numero</td>
+                    <td>@p.Fecha.ToShortDateString()</td>
+                    <td>@p.Importe.ToString("C")</td>
+                    <td>@p.Detalle</td>
+                    <td>@(p.Anulado ? "Anulado" : "Activo")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a class="btn btn-warning"
+       asp-controller="Pago"
+       asp-action="Index"
+       asp-route-contratoId="@Model.Id">
+         <i class="bi bi-cash-stack"></i> Ver todos los pagos
+    </a>
+}
+else
+{
+    <p class="text-muted"><i class="bi bi-exclamation-circle"></i> No hay pagos registrados para este contrato.</p>
+    <a class="btn btn-success"
+       asp-controller="Pago"
+       asp-action="Crear"
+       asp-route-contratoId="@Model.Id">
+         <i class="bi bi-plus-circle"></i> Registrar Pago
+    </a>
+}
+
+<hr />
 
 <div>
     <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>

@@ -1,0 +1,42 @@
+@model InmobiliariaAppAguileraBecerra.Models.Pago
+@{
+    ViewData["Title"] = "Editar Pago";
+}
+
+<h2>Editar Pago #@Model.Id</h2>
+
+<form asp-action="Editar" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ContratoId" />
+
+    <div class="form-group">
+        <label asp-for="Numero"></label>
+        <input asp-for="Numero" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fecha"></label>
+        <input asp-for="Fecha" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Importe"></label>
+        <input asp-for="Importe" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Detalle"></label>
+        <input asp-for="Detalle" class="form-control" />
+        <span asp-validation-for="Detalle" class="text-danger"></span>
+    </div>
+
+    <div class="form-check">
+        <input asp-for="Anulado" class="form-check-input" />
+        <label asp-for="Anulado" class="form-check-label"></label>
+    </div>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="Guardar" class="btn btn-primary" />
+        <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
