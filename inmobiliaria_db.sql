@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-09-2025 a las 21:07:07
+-- Tiempo de generación: 08-10-2025 a las 00:01:25
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -101,7 +101,8 @@ CREATE TABLE `inmueble` (
 --
 
 INSERT INTO `inmueble` (`Id`, `Direccion`, `Uso`, `Tipo`, `Ambientes`, `Latitud`, `Longitud`, `Precio`, `Disponible`, `PropietarioId`, `Habilitado`, `Portada`) VALUES
-(1, 'Barrio 544 Viviendas, Manzana P,  Casa 32', 'Residencial', 'Casa', 7, -99.99999999, -999.99999999, 2000000.00, 1, 4, 1, NULL);
+(1, 'Barrio 544 Viviendas, Manzana P,  Casa 32', '', '', 7, -99.99999999, -999.99999999, 0.00, 1, 4, 1, NULL),
+(3, 'Barrio 544 Viviendas, Manzana P,  Casa 31', 'Residencial', 'Casa', 6, -99.99999999, -999.99999999, 2000000.00, 1, 1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -161,7 +162,9 @@ CREATE TABLE `propietario` (
 
 INSERT INTO `propietario` (`Id`, `Nombre`, `Apellido`, `DNI`, `Telefono`, `Email`, `Clave`) VALUES
 (1, 'Juan', 'Perez', '12345678', '123-456-7890', 'juan.perez@example.com', 'password123'),
-(4, 'Martin', 'Becerra', '47266622', '2664304069', 'martinbecerrasl7@gmail.com', '47266622');
+(4, 'Martin', 'Becerra', '47266622', '2664304069', 'martinbecerrasl7@gmail.com', '47266622'),
+(5, 'Carolina', 'Becerra', '38731849', '2664334456', 'carobecerra@gmail.com', 'zxcvbnm12'),
+(7, 'Mariano', 'Luzza', '30120120', '2664101010', 'mariano@gmail.com', '12345678');
 
 -- --------------------------------------------------------
 
@@ -174,9 +177,19 @@ CREATE TABLE `usuario` (
   `Nombre` varchar(100) NOT NULL,
   `Apellido` varchar(100) NOT NULL,
   `Email` varchar(100) NOT NULL,
-  `Clave` varchar(2550) NOT NULL,
-  `Rol` int(11) NOT NULL
+  `Clave` varchar(255) NOT NULL,
+  `Rol` int(11) NOT NULL,
+  `Avatar` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuario`
+--
+
+INSERT INTO `usuario` (`Id`, `Nombre`, `Apellido`, `Email`, `Clave`, `Rol`, `Avatar`) VALUES
+(1, 'Admin', 'Principal', 'admin@inmobiliaria.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, '/Uploads/avatar_1.jpeg'),
+(2, 'Martin', 'Becerra', 'martinbecerrasl7@gmail.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, NULL),
+(4, 'Carolina', 'Luzza', 'caroluzza@gmail.com', 'BUQ/D7x0miEOtqY8hDcD1uFHeW+GvdaNwlWuSCoHi6s=', 2, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -264,7 +277,7 @@ ALTER TABLE `imagen`
 -- AUTO_INCREMENT de la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `inquilino`
@@ -282,13 +295,13 @@ ALTER TABLE `pago`
 -- AUTO_INCREMENT de la tabla `propietario`
 --
 ALTER TABLE `propietario`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restricciones para tablas volcadas
