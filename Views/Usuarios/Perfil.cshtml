@@ -1,0 +1,126 @@
+@model InmobiliariaAppAguileraBecerra.Models.Usuario
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<h1 class="mb-4 text-primary"><i class="bi bi-person-circle"></i> @ViewData["Title"]</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Datos Personales
+            </div>
+            <div class="card-body">
+                <form asp-action="EditarDatosPersonales" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Apellido" class="form-label"></label>
+                        <input asp-for="Apellido" class="form-control" />
+                        <span asp-validation-for="Apellido" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Guardar Datos</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                Avatar
+            </div>
+            <div class="card-body">
+                <form asp-action="EditarAvatar" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Avatar Actual</label><br />
+                        @if (!string.IsNullOrEmpty(Model.Avatar))
+                        {
+                            <img src="@Model.Avatar" width="64" class="mb-2" />
+                        }
+                        else
+                        {
+                            <img src="https://ui-avatars.com/api/?rounded=true&name=@Model.Nombre+@Model.Apellido" width="64" class="mb-2" />
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Avatar" class="form-label">Subir Nuevo Avatar</label>
+                        <input type="file" class="form-control" name="Avatar" />
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="EliminarAvatar" id="EliminarAvatar" />
+                        <label class="form-check-label" for="EliminarAvatar">Eliminar Avatar Actual</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-info text-white">Actualizar Avatar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                Cambiar Contraseña
+            </div>
+            <div class="card-body">
+                <form asp-action="CambiarClave" method="post">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label for="ClaveActual" class="form-label">Contraseña Actual</label>
+                        <input type="password" class="form-control" name="ClaveActual" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="NuevaClave" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-control" name="NuevaClave" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ConfirmarClave" class="form-label">Confirmar Nueva Contraseña</label>
+                        <input type="password" class="form-control" name="ConfirmarClave" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-warning">Cambiar Contraseña</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

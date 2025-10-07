@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using InmobiliariaAppAguileraBecerra.Models;
+using System;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {
@@ -21,6 +23,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(lista);
         }
 
+        [Authorize]
         public IActionResult Crear(int contratoId)
         {
             ViewBag.Contrato = _repoContrato.ObtenerPorId(contratoId);
@@ -29,6 +32,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Crear(Pago p)
         {
             if (ModelState.IsValid)
@@ -41,6 +45,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(p);
         }
 
+        [Authorize]
         public IActionResult Editar(int id)
         {
             var p = _repoPago.ObtenerPorId(id);
@@ -50,6 +55,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Editar(int id, Pago p)
         {
             if (id != p.Id) return BadRequest();
@@ -64,6 +70,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Anular(int id)
         {
             var pago = _repoPago.ObtenerPorId(id);

@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using InmobiliariaAppAguileraBecerra.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using InmobiliariaAppAguileraBecerra.Models;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {
@@ -9,38 +10,53 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         private readonly RepositorioContrato _repositorioContrato;
         private readonly RepositorioInquilino _repositorioInquilino;
         private readonly RepositorioInmueble _repositorioInmueble;
-        private readonly RepositorioPago _repositorioPago; // 👉 agregado
+        private readonly RepositorioPago _repositorioPago;
 
         public ContratoController(
             RepositorioContrato repositorioContrato,
             RepositorioInquilino repositorioInquilino,
             RepositorioInmueble repositorioInmueble,
-            RepositorioPago repositorioPago) // 👉 agregado
+            RepositorioPago repositorioPago)
         {
             _repositorioContrato = repositorioContrato;
             _repositorioInquilino = repositorioInquilino;
             _repositorioInmueble = repositorioInmueble;
-            _repositorioPago = repositorioPago; // 👉 agregado
+            _repositorioPago = repositorioPago;
         }
 
+        // Accesibles para todos
         public IActionResult Index()
         {
             var contratos = _repositorioContrato.ObtenerTodos();
             return View(contratos);
         }
 
+        public IActionResult Detalles(int id)
+        {
+            var contrato = _repositorioContrato.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
+
+            // pagos asociados
+            var pagos = _repositorioPago.ObtenerPorContrato(id);
+            ViewBag.Pagos = pagos;
+
+            return View(contrato);
+        }
+
+        // Solo usuarios logueados
+        [Authorize]
         public IActionResult Crear()
         {
-            var inquilinos = _repositorioInquilino.ObtenerTodos().Select(i => new 
-            {
-                Id = i.Id, NombreCompleto = $"{i.Nombre} {i.Apellido}"
-            }).ToList();
+            var inquilinos = _repositorioInquilino.ObtenerTodos()
+                .Select(i => new { Id = i.Id, NombreCompleto = $"{i.Nombre} {i.Apellido}" })
+                .ToList();
 
             ViewBag.Inquilinos = new SelectList(inquilinos, "Id", "NombreCompleto");
             ViewBag.Inmuebles = new SelectList(_repositorioInmueble.ObtenerTodos(), "Id", "Direccion");
             return View();
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Contrato c)
@@ -51,23 +67,13 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 TempData["Mensaje"] = "Contrato creado con éxito.";
                 return RedirectToAction(nameof(Index));
             }
+
             ViewBag.Inquilinos = new SelectList(_repositorioInquilino.ObtenerTodos(), "Id", "Nombre", c.InquilinoId);
             ViewBag.Inmuebles = new SelectList(_repositorioInmueble.ObtenerTodos(), "Id", "Direccion", c.InmuebleId);
             return View(c);
         }
 
-        public IActionResult Detalles(int id)
-        {
-            var contrato = _repositorioContrato.ObtenerPorId(id);
-            if (contrato == null) return NotFound();
-
-            // 👉 traemos los pagos asociados
-            var pagos = _repositorioPago.ObtenerPorContrato(id);
-            ViewBag.Pagos = pagos;
-
-            return View(contrato);
-        }
-
+        [Authorize]
         public IActionResult Editar(int id)
         {
             var contrato = _repositorioContrato.ObtenerPorId(id);
@@ -83,6 +89,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(contrato);
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Editar(int id, Contrato c)
@@ -95,6 +102,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 TempData["Mensaje"] = "Contrato modificado con éxito.";
                 return RedirectToAction(nameof(Index));
             }
+
             ViewBag.Inquilinos = new SelectList(_repositorioInquilino.ObtenerTodos(), "Id", "Nombre", c.InquilinoId);
             ViewBag.Inmuebles = new SelectList(_repositorioInmueble.ObtenerTodos(), "Id", "Direccion", c.InmuebleId);
             return View(c);

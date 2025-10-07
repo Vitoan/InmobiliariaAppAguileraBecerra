@@ -1,5 +1,7 @@
 ﻿@{
-    Layout = null;
+    bool IsAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+    var NombreUsuario = User?.Identity?.Name ?? "";
+    var IsAdmin = User?.IsInRole("Administrador") ?? false;
 }
 
 <!DOCTYPE html>
@@ -13,20 +15,21 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
-            <div class="container">
-                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">InmobiliariaApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" asp-controller="Home" asp-action="Index">InmobiliariaApp</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                @if (IsAuthenticated)
+                {
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Inmueble" asp-action="Index">Inmuebles</a>
@@ -40,28 +43,44 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Contrato" asp-action="Index">Contratos</a>
                         </li>
+                        @if (IsAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                            </li>
+                        }
                     </ul>
-                </div>
+
+                    <div class="dropdown">
+                        <a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            @NombreUsuario
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Perfil">Perfil</a></li>
+                            <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Logout">Salir</a></li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="ms-auto">
+                        <a class="btn btn-outline-primary" asp-controller="Usuarios" asp-action="Login">Ingresar</a>
+                    </div>
+                }
             </div>
-        </nav>
-    </header>
-
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="bg-light border-top text-center text-muted py-3 mt-5">
-        <div class="container">
-            &copy; @DateTime.Now.Year - InmobiliariaApp | Todos los derechos reservados
         </div>
-    </footer>
+    </nav>
+</header>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js"></script>
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
 
-    @RenderSection("Scripts", required: false)
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js"></script>
+@RenderSection("Scripts", required: false)
 </body>
 </html>

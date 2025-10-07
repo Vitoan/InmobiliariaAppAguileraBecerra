@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using InmobiliariaAppAguileraBecerra.Models;
 
@@ -18,6 +19,15 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(propietarios);
         }
 
+        [Authorize]
+        public IActionResult Detalles(int id)
+        {
+            var p = _repositorio.ObtenerPorId(id);
+            if (p == null) return NotFound();
+            return View(p);
+        }
+
+        [Authorize]
         public IActionResult Crear()
         {
             return View();
@@ -25,6 +35,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Crear(Propietario p)
         {
             if (ModelState.IsValid)
@@ -36,13 +47,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(p);
         }
 
-        public IActionResult Detalles(int id)
-        {
-            var p = _repositorio.ObtenerPorId(id);
-            if (p == null) return NotFound();
-            return View(p);
-        }
-
+        [Authorize]
         public IActionResult Editar(int id)
         {
             var p = _repositorio.ObtenerPorId(id);
@@ -52,6 +57,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Editar(int id, Propietario p)
         {
             if (id != p.Id) return BadRequest();
@@ -65,6 +71,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(p);
         }
 
+        [Authorize]
         public IActionResult Eliminar(int id)
         {
             var p = _repositorio.ObtenerPorId(id);
@@ -74,22 +81,18 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult ConfirmarEliminar(int id)
         {
             int resultado = _repositorio.Baja(id);
 
             if (resultado == 0)
-            {
                 TempData["Error"] = "No se puede eliminar el propietario porque tiene contratos asociados.";
-            }
             else if (resultado > 0)
-            {
                 TempData["Success"] = "Propietario eliminado con éxito.";
-            }
             else
-            {
                 TempData["Error"] = "Ocurrió un error al intentar eliminar el propietario.";
-            }
+
             return RedirectToAction(nameof(Index));
         }
     }

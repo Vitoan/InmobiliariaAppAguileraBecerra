@@ -1,48 +1,62 @@
 ﻿@{
     ViewData["Title"] = "Inicio - Inmobiliaria";
+    bool IsAdmin = User?.IsInRole("Administrador") ?? false;
 }
 
 <div class="container mt-5">
     <div class="p-5 mb-4 bg-light rounded-3 shadow-sm text-center">
-        <h1 class="display-4 fw-bold">Bienvenido a Inmobiliaria Aguilera & Becerra</h1>
-        <p class="lead mb-4">Descubrí las mejores propiedades para alquilar o comprar en tu ciudad. Fácil, rápido y confiable.</p>
-        <a class="btn btn-primary btn-lg" asp-controller="Inmueble" asp-action="Index" role="button">
-            Ver Propiedades
-        </a>
+        <h1 class="display-4 fw-bold">Panel de Inmobiliaria Aguilera & Becerra</h1>
+        <p class="lead mb-4">Acceso rápido a todas las secciones de gestión interna.</p>
     </div>
 
     <div class="row text-center">
-        <div class="col-md-4 mb-4">
+        <div class="col-md-3 mb-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body">
                     <i class="bi bi-house-door-fill display-4 mb-3 text-primary"></i>
-                    <h5 class="card-title">Variedad de Inmuebles</h5>
-                    <p class="card-text">Encontrá departamentos, casas y locales comerciales para todas tus necesidades.</p>
+                    <h5 class="card-title">Inmuebles</h5>
+                    <a class="btn btn-primary" asp-controller="Inmueble" asp-action="Index">Ver Inmuebles</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
+        <div class="col-md-3 mb-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body">
-                    <i class="bi bi-search-heart-fill display-4 mb-3 text-primary"></i>
-                    <h5 class="card-title">Búsqueda Fácil</h5>
-                    <p class="card-text">Filtrá por ubicación, precio, tipo de propiedad o cantidad de ambientes en segundos.</p>
+                    <i class="bi bi-person-lines-fill display-4 mb-3 text-primary"></i>
+                    <h5 class="card-title">Propietarios</h5>
+                    <a class="btn btn-primary" asp-controller="Propietario" asp-action="Index">Ver Propietarios</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
+        <div class="col-md-3 mb-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body">
                     <i class="bi bi-people-fill display-4 mb-3 text-primary"></i>
-                    <h5 class="card-title">Atención Personalizada</h5>
-                    <p class="card-text">Nuestro equipo te acompaña en todo el proceso para que tu experiencia sea segura y confiable.</p>
+                    <h5 class="card-title">Inquilinos</h5>
+                    <a class="btn btn-primary" asp-controller="Inquilino" asp-action="Index">Ver Inquilinos</a>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="text-center mt-5">
-        <p class="fs-5">¿Querés publicar tu propiedad? Registrate y comenzá hoy mismo.</p>
-        <a class="btn btn-outline-primary btn-lg disabled" asp-controller="Usuario" asp-action="Registrar">Registrarse</a>
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <i class="bi bi-file-earmark-text-fill display-4 mb-3 text-primary"></i>
+                    <h5 class="card-title">Contratos</h5>
+                    <a class="btn btn-primary" asp-controller="Contrato" asp-action="Index">Ver Contratos</a>
+                </div>
+            </div>
+        </div>
+        @if (IsAdmin)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-person-badge-fill display-4 mb-3 text-primary"></i>
+                        <h5 class="card-title">Usuarios</h5>
+                        <a class="btn btn-primary" asp-controller="Usuarios" asp-action="Index">Gestionar Usuarios</a>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>

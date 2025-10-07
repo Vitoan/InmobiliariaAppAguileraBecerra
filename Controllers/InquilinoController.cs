@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using InmobiliariaAppAguileraBecerra.Models;
 
@@ -18,6 +19,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(inquilinos);
         }
 
+        [Authorize]
         public IActionResult Crear()
         {
             return View();
@@ -25,6 +27,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Crear(Inquilino i)
         {
             if (ModelState.IsValid)
@@ -43,6 +46,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(i);
         }
 
+        [Authorize]
         public IActionResult Editar(int id)
         {
             var i = _repositorio.ObtenerPorId(id);
@@ -52,6 +56,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Editar(int id, Inquilino i)
         {
             if (id != i.Id) return BadRequest();
@@ -65,6 +70,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(i);
         }
 
+        [Authorize]
         public IActionResult Eliminar(int id)
         {
             var i = _repositorio.ObtenerPorId(id);
@@ -74,6 +80,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult ConfirmarEliminar(int id)
         {
             int resultado = _repositorio.Baja(id);
