@@ -1,6 +1,7 @@
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Collections.Generic;
+using System.IO;
 
 namespace InmobiliariaAppAguileraBecerra.Models
 {
@@ -11,8 +12,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
             int res = -1;
             using (var connection = GetConnection())
             {
-                string sql = @"INSERT INTO inmueble (Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId)
-                               VALUES (@direccion, @uso, @tipo, @ambientes, @latitud, @longitud, @precio, @disponible, @propietarioId);
+                string sql = @"INSERT INTO inmueble 
+                               (Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId, Portada)
+                               VALUES (@direccion, @uso, @tipo, @ambientes, @latitud, @longitud, @precio, @disponible, @propietarioId, @portada);
                                SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -26,6 +28,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                     command.Parameters.AddWithValue("@precio", i.Precio);
                     command.Parameters.AddWithValue("@disponible", i.Disponible);
                     command.Parameters.AddWithValue("@propietarioId", i.PropietarioId);
+                    command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(i.Portada) ? DBNull.Value : i.Portada);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar() ?? 0);
                     i.Id = res;
@@ -40,7 +43,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
             using (var connection = GetConnection())
             {
                 string sql = @"UPDATE inmueble
-                               SET Direccion=@direccion, Uso=@uso, Tipo=@tipo, Ambientes=@ambientes, Latitud=@latitud, Longitud=@longitud, Precio=@precio, Disponible=@disponible, PropietarioId=@propietarioId
+                               SET Direccion=@direccion, Uso=@uso, Tipo=@tipo, Ambientes=@ambientes, 
+                                   Latitud=@latitud, Longitud=@longitud, Precio=@precio, Disponible=@disponible, 
+                                   PropietarioId=@propietarioId, Portada=@portada
                                WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -54,6 +59,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                     command.Parameters.AddWithValue("@precio", i.Precio);
                     command.Parameters.AddWithValue("@disponible", i.Disponible);
                     command.Parameters.AddWithValue("@propietarioId", i.PropietarioId);
+                    command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(i.Portada) ? DBNull.Value : i.Portada);
                     command.Parameters.AddWithValue("@id", i.Id);
                     connection.Open();
                     res = command.ExecuteNonQuery();
@@ -67,7 +73,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
             var res = new List<Inmueble>();
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT i.Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId, p.Nombre, p.Apellido, p.DNI
+                string sql = @"SELECT i.Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId, Portada, p.Nombre, p.Apellido, p.DNI
                                FROM inmueble i
                                INNER JOIN propietario p ON i.PropietarioId = p.Id";
                 using (var command = new MySqlCommand(sql, connection))
@@ -83,12 +89,13 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                 Id = reader.GetInt32("Id"),
                                 Direccion = reader.GetString("Direccion") ?? "",
                                 Uso = reader.GetString("Uso") ?? "",
-                                Tipo = reader.GetString("Tipo") ?? "",
+                                Tipo = reader.GetInt32("Tipo"),
                                 Ambientes = reader.GetInt32("Ambientes"),
                                 Latitud = reader.GetDecimal("Latitud"),
                                 Longitud = reader.GetDecimal("Longitud"),
                                 Precio = reader.GetDecimal("Precio"),
                                 Disponible = reader.GetBoolean("Disponible"),
+                                Portada = reader.IsDBNull(reader.GetOrdinal("Portada")) ? null : reader.GetString("Portada"),
                                 PropietarioId = reader.GetInt32("PropietarioId"),
                                 Duenio = new Propietario
                                 {
@@ -110,7 +117,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
             Inmueble? i = null;
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId
+                string sql = @"SELECT Id, Direccion, Uso, Tipo, Ambientes, Latitud, Longitud, Precio, Disponible, PropietarioId, Portada
                                FROM inmueble WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -125,12 +132,13 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                 Id = reader.GetInt32("Id"),
                                 Direccion = reader.GetString("Direccion") ?? "",
                                 Uso = reader.GetString("Uso") ?? "",
-                                Tipo = reader.GetString("Tipo") ?? "",
+                                Tipo = reader.GetInt32("Tipo"),
                                 Ambientes = reader.GetInt32("Ambientes"),
                                 Latitud = reader.GetDecimal("Latitud"),
                                 Longitud = reader.GetDecimal("Longitud"),
                                 Precio = reader.GetDecimal("Precio"),
                                 Disponible = reader.GetBoolean("Disponible"),
+                                Portada = reader.IsDBNull(reader.GetOrdinal("Portada")) ? null : reader.GetString("Portada"),
                                 PropietarioId = reader.GetInt32("PropietarioId")
                             };
                         }
@@ -146,13 +154,26 @@ namespace InmobiliariaAppAguileraBecerra.Models
             using (var connection = GetConnection())
             {
                 connection.Open();
+
                 string sqlChequeo = "SELECT COUNT(*) FROM contrato WHERE InmuebleId = @id AND Vigente = TRUE";
                 using (var cmdChequeo = new MySqlCommand(sqlChequeo, connection))
                 {
                     cmdChequeo.Parameters.AddWithValue("@id", id);
                     int count = Convert.ToInt32(cmdChequeo.ExecuteScalar() ?? 0);
-                    if (count > 0)
-                        return 0;
+                    if (count > 0) return 0;
+                }
+
+                // Borrar archivo de portada si existe
+                string sqlGetPortada = "SELECT Portada FROM inmueble WHERE Id=@id";
+                using (var cmdGet = new MySqlCommand(sqlGetPortada, connection))
+                {
+                    cmdGet.Parameters.AddWithValue("@id", id);
+                    var portada = cmdGet.ExecuteScalar() as string;
+                    if (!string.IsNullOrEmpty(portada))
+                    {
+                        string ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", portada.TrimStart('/'));
+                        if (File.Exists(ruta)) File.Delete(ruta);
+                    }
                 }
 
                 string sqlDelete = "DELETE FROM inmueble WHERE Id = @id";
@@ -192,7 +213,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                 Id = reader.GetInt32("Id"),
                                 Direccion = reader.GetString("Direccion") ?? "",
                                 Uso = reader.GetString("Uso") ?? "",
-                                Tipo = reader.GetString("Tipo") ?? "",
+                                Tipo = reader.GetInt32("Tipo"),
                                 Ambientes = reader.GetInt32("Ambientes"),
                                 Latitud = reader.GetDecimal("Latitud"),
                                 Longitud = reader.GetDecimal("Longitud"),
@@ -273,13 +294,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
         public int ModificarPortada(int id, string url)
         {
             int res = -1;
-            using (var connection = GetConnection()) // usa MySqlConnection
+            using (var connection = GetConnection())
             {
-                string sql = @"
-                    UPDATE inmueble SET
-                    Portada=@portada
-                    WHERE Id = @id";
-
+                string sql = @"UPDATE inmueble SET Portada=@portada WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(url) ? DBNull.Value : url);

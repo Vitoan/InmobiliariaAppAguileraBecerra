@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Editar";
     var Propietarios = (IList<Propietario>)ViewBag.Propietarios;
+    var tiposInmueble = Inmueble.ObtenerTipos();
 }
 
 <h1>Editar Inmueble</h1>
@@ -20,6 +21,25 @@
                 <label asp-for="Direccion" class="control-label"></label>
                 <input asp-for="Direccion" class="form-control" />
                 <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Tipo" class="control-label"></label>
+                <select asp-for="Tipo" class="form-control">
+                    <option value="">-- Seleccione un tipo --</option>
+                    @foreach (var tipo in tiposInmueble)
+                    {
+                        if (tipo.Key == Model.Tipo)
+                        {
+                            <option value="@tipo.Key" selected>@tipo.Value</option>
+                        }
+                        else
+                        {
+                            <option value="@tipo.Key">@tipo.Value</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger"></span>
             </div>
 
             <div class="form-group">
@@ -43,9 +63,10 @@
             <div class="form-group">
                 <label class="control-label">Propietario</label>
                 <select class="form-control" asp-for="PropietarioId">
+                    <option value="">-- Seleccione un propietario --</option>
                     @foreach (var item in Propietarios)
                     {
-                        if(item.Id == Model.Id)
+                        if (item.Id == Model.PropietarioId)
                         {
                             <option value="@item.Id" selected>@item.Nombre @item.Apellido</option>
                         }
@@ -55,7 +76,7 @@
                         }
                     }
                 </select>
-                <span asp-validation-for="Id" class="text-danger"></span>
+                <span asp-validation-for="PropietarioId" class="text-danger"></span>
             </div>
 
             <div class="form-group mt-3">

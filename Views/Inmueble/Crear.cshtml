@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Crear";
     var ltaPropietarios = (IList<Propietario>?)ViewData["Propietarios"] ?? new List<Propietario>();
+    var tiposInmueble = Inmueble.ObtenerTipos();
 }
 
 <h1>Crear Inmueble</h1>
@@ -29,7 +30,13 @@
 
             <div class="form-group">
                 <label asp-for="Tipo" class="control-label"></label>
-                <input asp-for="Tipo" class="form-control" />
+                <select asp-for="Tipo" class="form-control">
+                    <option value="">-- Seleccione un tipo --</option>
+                    @foreach (var tipo in tiposInmueble)
+                    {
+                        <option value="@tipo.Key">@tipo.Value</option>
+                    }
+                </select>
                 <span asp-validation-for="Tipo" class="text-danger"></span>
             </div>
 
@@ -60,6 +67,7 @@
             <div class="form-group">
                 <label class="control-label">Propietario</label>
                 <select class="form-control" name="PropietarioId">
+                    <option value="">-- Seleccione un propietario --</option>
                     @foreach (var item in ltaPropietarios)
                     {
                         <option value="@item.Id">@item.Nombre @item.Apellido</option>

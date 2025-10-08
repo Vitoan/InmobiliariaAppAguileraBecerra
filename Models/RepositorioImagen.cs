@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using InmobiliariaAppAguileraBecerra.Models;
 
 namespace InmobiliariaAppAguileraBecerra.Models
@@ -19,6 +18,11 @@ namespace InmobiliariaAppAguileraBecerra.Models
             return _context.imagen
                            .Where(i => i.InmuebleId == inmuebleId)
                            .ToList();
+        }
+
+        public Imagen? ObtenerPorId(int id)
+        {
+            return _context.imagen.Find(id);
         }
 
         public void Agregar(Imagen imagen)
