@@ -33,9 +33,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
 
         public int Ambientes { get; set; }
 
-        public decimal Latitud { get; set; }
-
-        public decimal Longitud { get; set; }
+        public decimal? Latitud { get; set; }
+        public decimal? Longitud { get; set; }
 
         [Required]
         public decimal Precio { get; set; }

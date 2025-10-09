@@ -127,5 +127,35 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return lista;
         }
+        public IList<Pago> ObtenerTodos()
+{
+    var res = new List<Pago>();
+    using (var connection = GetConnection())
+    {
+        string sql = @"SELECT id, contrato_id, fecha_pago, importe, numero_pago
+                       FROM pago";
+        using (var command = new MySqlCommand(sql, connection))
+        {
+            connection.Open();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var pago = new Pago
+                    {
+                        Id = reader.GetInt32("id"),
+                        ContratoId = reader.GetInt32("contrato_id"),
+                        Fecha = reader.GetDateTime("fecha"),
+                        Importe = reader.GetDecimal("importe"),
+                        Numero = reader.GetInt32("numero")
+                    };
+                    res.Add(pago);
+                }
+            }
+        }
+    }
+    return res;
+}
+
     }
 }

@@ -1,83 +1,140 @@
+using System;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using InmobiliariaAppAguileraBecerra.Models;
-using System;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {
+    [Authorize]
     public class PagoController : Controller
     {
-        private readonly RepositorioPago _repoPago;
-        private readonly RepositorioContrato _repoContrato;
+        private readonly RepositorioPago repoPago;
+        private readonly RepositorioContrato repoContrato;
+        private readonly RepositorioAuditoria repoAuditoria;
+        private readonly ILogger<PagoController> logger;
 
-        public PagoController(RepositorioPago repoPago, RepositorioContrato repoContrato)
+        public PagoController(
+            RepositorioPago repoPago,
+            RepositorioContrato repoContrato,
+            RepositorioAuditoria repoAuditoria,
+            ILogger<PagoController> logger)
         {
-            _repoPago = repoPago;
-            _repoContrato = repoContrato;
+            this.repoPago = repoPago;
+            this.repoContrato = repoContrato;
+            this.repoAuditoria = repoAuditoria;
+            this.logger = logger;
         }
 
-        public IActionResult Index(int contratoId)
+        public IActionResult Index()
         {
-            var lista = _repoPago.ObtenerPorContrato(contratoId);
-            ViewBag.Contrato = _repoContrato.ObtenerPorId(contratoId);
+            var lista = repoPago.ObtenerTodos();
             return View(lista);
         }
 
-        [Authorize]
         public IActionResult Crear(int contratoId)
         {
-            ViewBag.Contrato = _repoContrato.ObtenerPorId(contratoId);
-            return View(new Pago { ContratoId = contratoId, Fecha = DateTime.Now });
+            ViewBag.Contrato = repoContrato.ObtenerPorId(contratoId);
+            return View(new Pago { ContratoId = contratoId });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
-        public IActionResult Crear(Pago p)
+        public IActionResult Crear(Pago pago)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(pago);
+
+            try
             {
-                _repoPago.Alta(p);
-                TempData["Mensaje"] = "Pago registrado con éxito.";
-                return RedirectToAction(nameof(Index), new { contratoId = p.ContratoId });
+                repoPago.Alta(pago);
+
+                var datosNuevos = new
+                {
+                    pago.Id,
+                    pago.Numero,
+                    pago.Fecha,
+                    pago.Importe,
+                    pago.Detalle,
+                    pago.Anulado,
+                    pago.ContratoId
+                };
+
+                var auditoria = new Auditoria
+                {
+                    Tabla = "Pago",
+                    Operacion = "Alta",
+                    RegistroId = pago.Id,
+                    DatosNuevos = JsonSerializer.Serialize(datosNuevos),
+                    Usuario = User?.Identity?.Name ?? "Sistema"
+                };
+                repoAuditoria.Registrar(auditoria);
+
+                TempData["Mensaje"] = "Pago registrado correctamente";
+                return RedirectToAction("DetallesContrato", "Contrato", new { id = pago.ContratoId });
             }
-            ViewBag.Contrato = _repoContrato.ObtenerPorId(p.ContratoId);
-            return View(p);
-        }
-
-        [Authorize]
-        public IActionResult Editar(int id)
-        {
-            var p = _repoPago.ObtenerPorId(id);
-            if (p == null) return NotFound();
-            return View(p);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public IActionResult Editar(int id, Pago p)
-        {
-            if (id != p.Id) return BadRequest();
-            if (ModelState.IsValid)
+            catch (Exception ex)
             {
-                _repoPago.Modificacion(p);
-                TempData["Mensaje"] = "Pago actualizado.";
-                return RedirectToAction(nameof(Index), new { contratoId = p.ContratoId });
+                logger.LogError(ex, "Error al registrar pago");
+                ModelState.AddModelError("", ex.Message);
+                return View(pago);
             }
-            return View(p);
         }
 
+        [Authorize(Policy = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public IActionResult Anular(int id)
         {
-            var pago = _repoPago.ObtenerPorId(id);
-            if (pago == null) return NotFound();
-            _repoPago.Baja(id);
-            TempData["Mensaje"] = "Pago anulado.";
-            return RedirectToAction(nameof(Index), new { contratoId = pago.ContratoId });
+            try
+            {
+                var pago = repoPago.ObtenerPorId(id);
+                if (pago == null)
+                    return NotFound();
+
+                var anterior = new
+                {
+                    pago.Id,
+                    pago.Numero,
+                    pago.Fecha,
+                    pago.Importe,
+                    pago.Detalle,
+                    pago.Anulado
+                };
+
+                pago.Anulado = true;
+                repoPago.Modificacion(pago);
+
+                var nuevo = new
+                {
+                    pago.Id,
+                    pago.Numero,
+                    pago.Fecha,
+                    pago.Importe,
+                    pago.Detalle,
+                    pago.Anulado
+                };
+
+                var auditoria = new Auditoria
+                {
+                    Tabla = "Pago",
+                    Operacion = "Anulación",
+                    RegistroId = pago.Id,
+                    DatosAnteriores = JsonSerializer.Serialize(anterior),
+                    DatosNuevos = JsonSerializer.Serialize(nuevo),
+                    Usuario = User?.Identity?.Name ?? "Sistema"
+                };
+                repoAuditoria.Registrar(auditoria);
+
+                TempData["Mensaje"] = "Pago anulado correctamente";
+                return RedirectToAction("DetallesContrato", "Contrato", new { id = pago.ContratoId });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error al anular pago");
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

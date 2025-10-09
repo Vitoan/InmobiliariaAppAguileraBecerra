@@ -34,6 +34,7 @@ builder.Services.AddScoped<RepositorioContrato>();
 builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 builder.Services.AddScoped<RepositorioPago>();
 builder.Services.AddScoped<RepositorioUsuario>();
+builder.Services.AddScoped<RepositorioAuditoria>(); 
 
 var app = builder.Build();
 

@@ -1,0 +1,140 @@
+@model IEnumerable<InmobiliariaAppAguileraBecerra.Models.Auditoria>
+
+@{
+    ViewData["Title"] = "Auditoría del Sistema";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">
+            <i class="bi bi-shield-lock"></i> @ViewData["Title"]
+        </h2>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Volver al Inicio
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <form method="get" class="card shadow-sm mb-4 p-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Tabla</label>
+                <select name="tabla" class="form-select">
+                    <option value="">Todas</option>
+                    <option>Contrato</option>
+                    <option>Pago</option>
+                    <option>Usuario</option>
+                    <option>Inmueble</option>
+                    <option>Propietario</option>
+                    <option>Inquilino</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Operación</label>
+                <select name="operacion" class="form-select">
+                    <option value="">Todas</option>
+                    <option>Alta</option>
+                    <option>Modificación</option>
+                    <option>Terminación</option>
+                    <option>Anulación</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Usuario</label>
+                <input type="text" name="usuario" class="form-control" placeholder="Buscar usuario..." />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Desde</label>
+                <input type="date" name="desde" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Hasta</label>
+                <input type="date" name="hasta" class="form-control" />
+            </div>
+
+            <div class="col-md-12 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabla de resultados -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tabla</th>
+                            <th>Operación</th>
+                            <th>ID Registro</th>
+                            <th>Usuario</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var a in Model)
+                            {
+                                <tr>
+                                    <td>@a.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@a.Tabla</td>
+                                    <td>
+                                        @switch (a.Operacion)
+                                        {
+                                            case "Alta":
+                                                <span class="badge bg-success">Alta</span>; break;
+                                            case "Modificación":
+                                                <span class="badge bg-warning text-dark">Modificación</span>; break;
+                                            case "Terminación":
+                                                <span class="badge bg-danger">Terminación</span>; break;
+                                            case "Anulación":
+                                                <span class="badge bg-secondary">Anulación</span>; break;
+                                            default:
+                                                <span class="badge bg-info">@a.Operacion</span>; break;
+                                        }
+                                    </td>
+                                    <td>@a.RegistroId</td>
+                                    <td>@a.Usuario</td>
+                                    <td>
+                                        <a asp-action="Detalles" asp-route-id="@a.Id" class="btn btn-outline-info btn-sm">
+                                            <i class="bi bi-eye"></i> Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="bi bi-info-circle"></i> No se encontraron registros de auditoría.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .form-label {
+        font-weight: 500;
+    }
+</style>

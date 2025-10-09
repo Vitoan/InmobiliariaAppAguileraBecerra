@@ -308,5 +308,46 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return res;
         }
+        public IList<Inmueble> ObtenerDisponibles()
+{
+    var res = new List<Inmueble>();
+    using (var connection = GetConnection())
+    {
+        string sql = @"SELECT id, direccion, uso, tipo, ambientes, latitud, longitud,
+                              precio, disponible, propietario_id, habilitado, portada
+                       FROM inmueble
+                       WHERE disponible = 1 AND habilitado = 1";
+
+        using (var command = new MySqlCommand(sql, connection))
+        {
+            connection.Open();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var inmueble = new Inmueble
+                    {
+                        Id = reader.GetInt32("id"),
+                        Direccion = reader.GetString("direccion"),
+                        Uso = reader.GetString("uso"),
+                        Tipo = reader.GetInt32("tipo"),
+                        Ambientes = reader.GetInt32("ambientes"),
+                        Latitud = reader.IsDBNull(reader.GetOrdinal("latitud")) ? (decimal?)null : reader.GetDecimal("latitud"),
+                        Longitud = reader.IsDBNull(reader.GetOrdinal("longitud")) ? (decimal?)null : reader.GetDecimal("longitud"),
+
+                        Precio = reader.GetDecimal("precio"),
+                        Disponible = reader.GetBoolean("disponible"),
+                        PropietarioId = reader.GetInt32("propietario_id"),
+                        Habilitado = reader.GetBoolean("habilitado"),
+                        Portada = reader.IsDBNull(reader.GetOrdinal("portada")) ? null : reader.GetString("portada")
+                    };
+                    res.Add(inmueble);
+                }
+            }
+        }
+    }
+    return res;
+}
+
     }
 }

@@ -1,92 +1,168 @@
-@model InmobiliariaAppAguileraBecerra.Models.Contrato
+@using InmobiliariaAppAguileraBecerra.Models
+@model Contrato
 
 @{
     ViewData["Title"] = "Detalles del Contrato";
-    var pagos = ViewBag.Pagos as IEnumerable<InmobiliariaAppAguileraBecerra.Models.Pago>;
+    var auditorias = ViewBag.Auditorias as IEnumerable<Auditoria>;
 }
 
-<h2>Detalles del Contrato</h2>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">
+            <i class="bi bi-file-earmark-text"></i> @ViewData["Title"]
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
+    </div>
 
-<div>
-    <h4>Contrato</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Id)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Id)</dd>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h4 class="card-title text-dark mb-3">
+                <i class="bi bi-info-circle"></i> Información General
+            </h4>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Inquilino)</dt>
-        <dd class="col-sm-10">
-            @(Model.Inquilino != null 
-                ? $"{Model.Inquilino.Nombre} {Model.Inquilino.Apellido}" 
-                : "No definido")
-        </dd>
+            <dl class="row">
+                <dt class="col-sm-3">ID Contrato:</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Inmueble)</dt>
-        <dd class="col-sm-10">
-            @(Model.Inmueble != null 
-                ? Model.Inmueble.Direccion 
-                : "No definido")
-        </dd>
+                <dt class="col-sm-3">Inquilino:</dt>
+                <dd class="col-sm-9">@Model.Inquilino?.Nombre @Model.Inquilino?.Apellido</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FechaInicio)</dt>
-        <dd class="col-sm-10">@Model.FechaInicio.ToShortDateString()</dd>
+                <dt class="col-sm-3">Inmueble:</dt>
+                <dd class="col-sm-9">@Model.Inmueble?.Direccion</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FechaFin)</dt>
-        <dd class="col-sm-10">@Model.FechaFin.ToShortDateString()</dd>
+                <dt class="col-sm-3">Fecha de Inicio:</dt>
+                <dd class="col-sm-9">@Model.FechaInicio.ToString("dd/MM/yyyy")</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Monto)</dt>
-        <dd class="col-sm-10">@Model.Monto.ToString("C")</dd>
+                <dt class="col-sm-3">Fecha de Fin:</dt>
+                <dd class="col-sm-9">@Model.FechaFin.ToString("dd/MM/yyyy")</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Vigente)</dt>
-        <dd class="col-sm-10">@(Model.Vigente ? "Sí" : "No")</dd>
-    </dl>
-</div>
+                @if (Model.FechaFinAnticipada != null)
+                {
+                    <dt class="col-sm-3 text-danger">Finalización Anticipada:</dt>
+                    <dd class="col-sm-9 text-danger">@Model.FechaFinAnticipada?.ToString("dd/MM/yyyy")</dd>
+                }
 
-<hr />
+                <dt class="col-sm-3">Monto mensual:</dt>
+                <dd class="col-sm-9">$@Model.Monto.ToString("N2")</dd>
 
-<h4>Pagos Asociados</h4>
+                <dt class="col-sm-3">Multa:</dt>
+                <dd class="col-sm-9">@Model.Multa != null ? "$" + Model.Multa.Value.ToString("N2") : "-"</dd>
+                <dt class="col-sm-3">Vigente:</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Vigente)
+                    {
+                        <span class="badge bg-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Finalizado</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
 
-@if (pagos != null && pagos.Any())
-{
-    <table class="table table-bordered table-striped table-hover">
-        <thead class="table-dark">
-            {{-- ... Encabezados de tabla ... --}}
-        </thead>
-        <tbody>
-            @foreach (var p in pagos.Take(5))
-            {
-                <tr class="@(p.Anulado ? "table-danger" : "")">
-                    <td>@p.Numero</td>
-                    <td>@p.Fecha.ToShortDateString()</td>
-                    <td>@p.Importe.ToString("C")</td>
-                    <td>@p.Detalle</td>
-                    <td>@(p.Anulado ? "Anulado" : "Activo")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="text-end mb-4">
+        <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil-square"></i> Editar
+        </a>
 
-    <a class="btn btn-warning"
-       asp-controller="Pago"
-       asp-action="Index"
-       asp-route-contratoId="@Model.Id">
-         <i class="bi bi-cash-stack"></i> Ver todos los pagos
-    </a>
-}
-else
-{
-    <p class="text-muted"><i class="bi bi-exclamation-circle"></i> No hay pagos registrados para este contrato.</p>
-    <a class="btn btn-success"
-       asp-controller="Pago"
-       asp-action="Crear"
-       asp-route-contratoId="@Model.Id">
-         <i class="bi bi-plus-circle"></i> Registrar Pago
-    </a>
-}
+        @if (User.IsInRole("Administrador") && Model.Vigente)
+        {
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalTerminar">
+                <i class="bi bi-x-circle"></i> Terminar Contrato
+            </button>
+        }
+    </div>
 
-<hr />
+    <!-- Modal de terminación -->
+    <div class="modal fade" id="modalTerminar" tabindex="-1" aria-labelledby="modalTerminarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-action="Terminar" method="post">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="modalTerminarLabel"><i class="bi bi-exclamation-triangle"></i> Terminar Contrato</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label for="fechaFinAnticipada" class="form-label">Fecha de finalización anticipada</label>
+                            <input type="date" name="fechaFinAnticipada" id="fechaFinAnticipada" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="multa" class="form-label">Monto de multa</label>
+                            <input type="number" step="0.01" name="multa" id="multa" class="form-control" placeholder="0.00" />
+                        </div>
+                        <p class="text-muted">Esta acción no puede deshacerse.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Confirmar Terminación</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-<div>
-    <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <!-- Sección de auditoría -->
+    @if (User.IsInRole("Administrador"))
+    {
+        <div class="card mt-5 border-primary shadow-sm">
+            <div class="card-header bg-primary text-white d-flex align-items-center">
+                <i class="bi bi-shield-check me-2"></i>
+                <h5 class="mb-0">Historial de Auditoría</h5>
+            </div>
+            <div class="card-body">
+                @if (auditorias != null && auditorias.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Operación</th>
+                                    <th>Usuario</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in auditorias)
+                                {
+                                    <tr>
+                                        <td>@a.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>
+                                            @switch (a.Operacion)
+                                            {
+                                                case "Alta":
+                                                    <span class="badge bg-success">Alta</span>; break;
+                                                case "Modificación":
+                                                    <span class="badge bg-warning text-dark">Modificación</span>; break;
+                                                case "Terminación":
+                                                    <span class="badge bg-danger">Terminación</span>; break;
+                                                default:
+                                                    <span class="badge bg-secondary">@a.Operacion</span>; break;
+                                            }
+                                        </td>
+                                        <td>@a.Usuario</td>
+                                        <td>
+                                            <a asp-controller="Auditoria" asp-action="Detalles" asp-route-id="@a.Id" class="btn btn-outline-info btn-sm">
+                                                <i class="bi bi-eye"></i> Ver
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted">No hay registros de auditoría para este contrato.</div>
+                }
+            </div>
+        </div>
+    }
 </div>
