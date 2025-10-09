@@ -13,12 +13,16 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
     {
         private readonly RepositorioInmueble repositorio;
         private readonly RepositorioPropietario repoPropietario;
+
+        private readonly RepositorioContrato repoContrato;
+
         private const int TamañoPagina = 10;
 
         public InmuebleController()
         {
             this.repositorio = new RepositorioInmueble();
             this.repoPropietario = new RepositorioPropietario();
+            this.repoContrato = new RepositorioContrato();
         }
 
         public IActionResult Lista(int pagina = 1, bool soloDisponibles = false)
@@ -240,6 +244,30 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet]
+        public IActionResult PorFecha(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            IList<Inmueble> inmuebles = new List<Inmueble>();
+
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                ViewBag.FechaInicio = fechaInicio.Value;
+                ViewBag.FechaFin = fechaFin.Value;
+
+                var contratos = repoContrato.ObtenerTodos()
+                    .Where(c => c.Vigente &&
+                                c.FechaInicio <= fechaFin &&
+                                c.FechaFin >= fechaInicio)
+                    .Select(c => c.InmuebleId)
+                    .ToList();
+
+                var todos = repositorio.ObtenerTodos();
+                inmuebles = todos.Where(i => !contratos.Contains(i.Id)).ToList();
+            }
+
+            return View(inmuebles);
         }
     }
 }

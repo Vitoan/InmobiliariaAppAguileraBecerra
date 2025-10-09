@@ -1,16 +1,38 @@
 @model IEnumerable<InmobiliariaAppAguileraBecerra.Models.Contrato>
 
 @{
-    ViewData["Title"] = "Listado de Contratos";
+    ViewData["Title"] = "Contratos por Inmueble";
+    var inmuebles = ViewBag.Inmuebles as IEnumerable<InmobiliariaAppAguileraBecerra.Models.Inmueble>;
+    var inmuebleSeleccionadoId = ViewBag.InmuebleSeleccionadoId as int?;
 }
 
-<h1 class="mb-4 text-primary"><i class="bi bi-file-earmark-text-fill"></i> @ViewData["Title"]</h1>
+<h1 class="mb-4 text-primary">@ViewData["Title"]</h1>
 
-<p>
-    <a class="btn btn-success" asp-action="Crear">
-        <i class="bi bi-plus-circle"></i> Nuevo Contrato
-    </a>
-</p>
+<form method="get" class="row g-3 mb-4">
+    <div class="col-auto">
+        <label for="inmuebleId" class="form-label">Seleccione Inmueble</label>
+        <select id="inmuebleId" name="inmuebleId" class="form-select">
+            <option value="">-- Todos --</option>
+            @if (inmuebles != null)
+            {
+                foreach (var i in inmuebles)
+                {
+                    if (inmuebleSeleccionadoId == i.Id)
+                    {
+                        <option value="@i.Id" selected="selected">@i.Direccion</option>
+                    }
+                    else
+                    {
+                        <option value="@i.Id">@i.Direccion</option>
+                    }
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto align-self-end">
+        <button type="submit" class="btn btn-primary mb-3">Filtrar</button>
+    </div>
+</form>
 
 <table class="table table-striped table-hover align-middle">
     <thead class="table-dark">
@@ -40,19 +62,12 @@
                     <td>@(item.Vigente ? "Sí" : "No")</td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@item.Id" title="Editar">
-                                <i class="bi bi-pencil-square"></i> Editar
-                            </a>
-                            <a class="btn btn-info btn-sm" asp-action="Detalles" asp-route-id="@item.Id" title="Detalles">
-                                <i class="bi bi-eye"></i> Detalles
-                            </a>
+                            <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@item.Id">Editar</a>
+                            <a class="btn btn-info btn-sm" asp-action="Detalles" asp-route-id="@item.Id">Detalles</a>
                             <a class="btn btn-warning btn-sm"
                                asp-controller="Pago"
                                asp-action="Index"
-                               asp-route-contratoId="@item.Id"
-                               title="Ver Pagos">
-                                <i class="bi bi-cash-stack"></i> Pagos
-                            </a>
+                               asp-route-contratoId="@item.Id">Pagos</a>
                         </div>
                     </td>
                 </tr>
@@ -62,14 +77,13 @@
         {
             <tr>
                 <td colspan="8" class="text-center text-muted">
-                    <i class="bi bi-exclamation-triangle-fill"></i> No hay contratos registrados.
+                    No hay contratos para el inmueble seleccionado.
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
 <div>
-    <a class="btn btn-secondary" asp-action="Index" asp-controller="Home">
-        <i class="bi bi-arrow-left-circle"></i> Volver al Inicio
-    </a>
+    <a class="btn btn-secondary" asp-action="Index" asp-controller="Home">Volver al Inicio</a>
 </div>

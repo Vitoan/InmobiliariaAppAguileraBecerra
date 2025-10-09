@@ -40,6 +40,18 @@
                             <ul class="dropdown-menu" aria-labelledby="inmueblesMenu">
                                 <li><a class="dropdown-item" asp-controller="Inmueble" asp-action="Lista">Todos los Inmuebles</a></li>
                                 <li><a class="dropdown-item" asp-controller="Inmueble" asp-action="PorPropietario">Por Propietario</a></li>
+                                <li><a class="dropdown-item" asp-controller="Inmueble" asp-action="PorFecha">Por Disponibilidad (Fecha)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="contratosMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Contratos
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="contratosMenu">
+                                <li><a class="dropdown-item" asp-controller="Contrato" asp-action="Index">Todos los Contratos</a></li>
+                                <li><a class="dropdown-item" asp-controller="Contrato" asp-action="PorFecha">Vigentes por Fecha</a></li>
+                                <li><a class="dropdown-item" asp-controller="Contrato" asp-action="PorInmueble">Por Inmueble</a></li>
                             </ul>
                         </li>
 
@@ -50,12 +62,7 @@
                             <a class="nav-link text-dark" asp-controller="Inquilino" asp-action="Index">Inquilinos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Contrato" asp-action="Index">Contratos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Auditoria" asp-action="Index">
-                                <i class="bi bi-file-earmark-lock"></i> Auditoría
-                            </a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Auditoria" asp-action="Index">Auditoría</a>
                         </li>
                         @if (IsAdmin)
                         {

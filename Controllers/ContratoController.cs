@@ -95,6 +95,13 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             {
                 repoContrato.Alta(contrato);
 
+                var inmueble = repoInmueble.ObtenerPorId(contrato.InmuebleId);
+                if (inmueble != null)
+                {
+                    inmueble.Disponible = false;
+                    repoInmueble.Modificacion(inmueble);
+                }
+
                 var datosNuevos = new
                 {
                     contrato.Id,
@@ -142,104 +149,6 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             }
         }
 
-        public IActionResult Editar(int id)
-        {
-            var contrato = repoContrato.ObtenerPorId(id);
-            if (contrato == null)
-                return NotFound();
-
-            ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
-                .Select(i => new SelectListItem
-                {
-                    Value = i.Id.ToString(),
-                    Text = $"{i.Nombre} {i.Apellido}"
-                }).ToList();
-
-            ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles()
-                .Select(i => new SelectListItem
-                {
-                    Value = i.Id.ToString(),
-                    Text = i.Direccion
-                }).ToList();
-
-            return View(contrato);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Editar(int id, Contrato contrato)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
-                    .Select(i => new SelectListItem
-                    {
-                        Value = i.Id.ToString(),
-                        Text = $"{i.Nombre} {i.Apellido}"
-                    }).ToList();
-
-                ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles()
-                    .Select(i => new SelectListItem
-                    {
-                        Value = i.Id.ToString(),
-                        Text = i.Direccion
-                    }).ToList();
-
-                return View(contrato);
-            }
-
-            try
-            {
-                var anterior = repoContrato.ObtenerPorId(id);
-                if (anterior == null)
-                    return NotFound();
-
-                repoContrato.Modificacion(contrato);
-
-                var datosAnteriores = new
-                {
-                    anterior.Id,
-                    anterior.FechaInicio,
-                    anterior.FechaFin,
-                    anterior.Monto,
-                    anterior.InquilinoId,
-                    anterior.InmuebleId,
-                    anterior.Vigente
-                };
-
-                var datosNuevos = new
-                {
-                    contrato.Id,
-                    contrato.FechaInicio,
-                    contrato.FechaFin,
-                    contrato.Monto,
-                    contrato.InquilinoId,
-                    contrato.InmuebleId,
-                    contrato.Vigente
-                };
-
-                var auditoria = new Auditoria
-                {
-                    Tabla = "Contrato",
-                    Operacion = "Modificación",
-                    RegistroId = contrato.Id,
-                    DatosAnteriores = JsonSerializer.Serialize(datosAnteriores),
-                    DatosNuevos = JsonSerializer.Serialize(datosNuevos),
-                    Usuario = User?.Identity?.Name ?? "Sistema"
-                };
-                repoAuditoria.Registrar(auditoria);
-
-                TempData["Mensaje"] = "Contrato modificado correctamente";
-                return RedirectToAction(nameof(Detalles), new { id = contrato.Id });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error al modificar contrato");
-                ModelState.AddModelError("", ex.Message);
-                return View(contrato);
-            }
-        }
-
         [Authorize(Policy = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -268,6 +177,13 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 contrato.Multa = multa;
                 contrato.Vigente = false;
                 repoContrato.Modificacion(contrato);
+
+                var inmueble = repoInmueble.ObtenerPorId(contrato.InmuebleId);
+                if (inmueble != null)
+                {
+                    inmueble.Disponible = true;
+                    repoInmueble.Modificacion(inmueble);
+                }
 
                 var nuevo = new
                 {
@@ -302,6 +218,41 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 TempData["Error"] = ex.Message;
                 return RedirectToAction(nameof(Detalles), new { id });
             }
+        }
+
+        [HttpGet]
+        public IActionResult PorFecha(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            var contratos = repoContrato.ObtenerTodos();
+
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                ViewBag.FechaInicio = fechaInicio.Value;
+                ViewBag.FechaFin = fechaFin.Value;
+
+                contratos = contratos
+                    .Where(c => c.Vigente &&
+                                c.FechaInicio <= fechaFin.Value &&
+                                c.FechaFin >= fechaInicio.Value)
+                    .ToList();
+            }
+
+            return View(contratos);
+        }
+
+        [HttpGet]
+        public IActionResult PorInmueble(int? inmuebleId)
+        {
+            var inmuebles = repoInmueble.ObtenerTodos();
+            ViewBag.Inmuebles = inmuebles;
+            ViewBag.InmuebleSeleccionadoId = inmuebleId;
+
+            IEnumerable<Contrato> contratos = repoContrato.ObtenerTodos();
+
+            if (inmuebleId.HasValue)
+                contratos = contratos.Where(c => c.InmuebleId == inmuebleId.Value);
+
+            return View(contratos);
         }
     }
 }

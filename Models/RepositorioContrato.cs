@@ -132,7 +132,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
                 {
                     string sql = @"SELECT c.Id, c.FechaInicio, c.FechaFin, c.Monto, c.InquilinoId, c.InmuebleId, c.Vigente, c.FechaFinAnticipada, c.Multa,
                                    i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido,
-                                   inm.Direccion AS InmuebleDireccion
+                                   inm.Direccion AS InmuebleDireccion,
+                                   inm.Disponible
                                    FROM contrato c
                                    INNER JOIN inquilino i ON c.InquilinoId = i.Id
                                    INNER JOIN inmueble inm ON c.InmuebleId = inm.Id
@@ -165,7 +166,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                     Inmueble = new Inmueble
                                     {
                                         Id = reader.GetInt32("InmuebleId"),
-                                        Direccion = reader.GetString("InmuebleDireccion") ?? ""
+                                        Direccion = reader.GetString("InmuebleDireccion") ?? "",
+                                        Disponible = reader.GetBoolean("Disponible")
                                     }
                                 };
                             }
