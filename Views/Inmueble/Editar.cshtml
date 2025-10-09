@@ -2,86 +2,97 @@
 @model InmobiliariaAppAguileraBecerra.Models.Inmueble
 
 @{
-    ViewData["Title"] = "Editar";
+    ViewData["Title"] = "Editar Inmueble";
     var Propietarios = (IList<Propietario>)ViewBag.Propietarios;
     var tiposInmueble = Inmueble.ObtenerTipos();
 }
 
-<h1>Editar Inmueble</h1>
-
+<h1 class="mb-4 text-primary">Editar Inmueble</h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Editar" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Editar" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
 
-            <div class="form-group">
-                <label asp-for="Direccion" class="control-label"></label>
+            <div class="form-group mb-3">
+                <label asp-for="Direccion" class="form-label"></label>
                 <input asp-for="Direccion" class="form-control" />
                 <span asp-validation-for="Direccion" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Tipo" class="control-label"></label>
+            <div class="form-group mb-3">
+                <label asp-for="Uso" class="form-label"></label>
+                <input asp-for="Uso" class="form-control" />
+                <span asp-validation-for="Uso" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Tipo" class="form-label"></label>
                 <select asp-for="Tipo" class="form-control">
                     <option value="">-- Seleccione un tipo --</option>
                     @foreach (var tipo in tiposInmueble)
                     {
-                        if (tipo.Key == Model.Tipo)
-                        {
-                            <option value="@tipo.Key" selected>@tipo.Value</option>
-                        }
-                        else
-                        {
-                            <option value="@tipo.Key">@tipo.Value</option>
-                        }
+                        <option value="@tipo.Key" selected="@(tipo.Key == Model.Tipo)">
+                            @tipo.Value
+                        </option>
                     }
                 </select>
                 <span asp-validation-for="Tipo" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Ambientes" class="control-label"></label>
-                <input asp-for="Ambientes" class="form-control" />
+            <div class="form-group mb-3">
+                <label asp-for="Ambientes" class="form-label"></label>
+                <input asp-for="Ambientes" type="number" class="form-control" />
                 <span asp-validation-for="Ambientes" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Latitud" class="control-label"></label>
-                <input asp-for="Latitud" class="form-control" />
+            <div class="form-group mb-3">
+                <label asp-for="Latitud" class="form-label"></label>
+                <input asp-for="Latitud" type="number" step="any" class="form-control" />
                 <span asp-validation-for="Latitud" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Longitud" class="control-label"></label>
-                <input asp-for="Longitud" class="form-control" />
+            <div class="form-group mb-3">
+                <label asp-for="Longitud" class="form-label"></label>
+                <input asp-for="Longitud" type="number" step="any" class="form-control" />
                 <span asp-validation-for="Longitud" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label class="control-label">Propietario</label>
-                <select class="form-control" asp-for="PropietarioId">
+            <div class="form-group mb-3">
+                <label asp-for="Precio" class="form-label"></label>
+                <input asp-for="Precio" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="Disponible" class="form-check-input" type="checkbox" />
+                <label asp-for="Disponible" class="form-check-label"></label>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="Habilitado" class="form-check-input" type="checkbox" />
+                <label asp-for="Habilitado" class="form-check-label"></label>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label">Propietario</label>
+                <select asp-for="PropietarioId" class="form-control">
                     <option value="">-- Seleccione un propietario --</option>
                     @foreach (var item in Propietarios)
                     {
-                        if (item.Id == Model.PropietarioId)
-                        {
-                            <option value="@item.Id" selected>@item.Nombre @item.Apellido</option>
-                        }
-                        else
-                        {
-                            <option value="@item.Id">@item.Nombre @item.Apellido</option>
-                        }
+                        <option value="@item.Id" selected="@(item.Id == Model.PropietarioId)">
+                            @item.Nombre @item.Apellido
+                        </option>
                     }
                 </select>
                 <span asp-validation-for="PropietarioId" class="text-danger"></span>
             </div>
 
-            <div class="form-group mt-3">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
-                <a class="btn btn-secondary" asp-action="Index">Volver a la Lista</a>
+            <div class="mt-4">
+                <input type="submit" value="Guardar cambios" class="btn btn-primary" />
+                <a asp-action="Lista" class="btn btn-secondary">Volver a la lista</a>
             </div>
         </form>
     </div>

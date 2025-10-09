@@ -9,7 +9,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
             int res = -1;
             using (var connection = GetConnection())
             {
-                string sql = @"INSERT INTO pago (Numero, Fecha, Importe, Detalle, Anulado, ContratoId)
+                string sql = @"INSERT INTO pago (NumeroPago, FechaPago, Importe, Detalle, Anulado, Contrato_Id)
                                VALUES (@numero, @fecha, @importe, @detalle, @anulado, @contratoId);
                                SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
@@ -69,7 +69,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
             Pago? p = null;
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT Id, Numero, Fecha, Importe, Detalle, Anulado, ContratoId 
+                string sql = @"SELECT Id, NumeroPago, FechaPago, Importe, Detalle, Anulado, Contrato_Id 
                                FROM pago WHERE Id=@id;";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -82,12 +82,12 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             p = new Pago
                             {
                                 Id = reader.GetInt32("Id"),
-                                Numero = reader.GetInt32("Numero"),
-                                Fecha = reader.GetDateTime("Fecha"),
+                                Numero = reader.GetInt32("NumeroPago"),
+                                Fecha = reader.GetDateTime("FechaPago"),
                                 Importe = reader.GetDecimal("Importe"),
                                 Detalle = reader.GetString("Detalle"),
                                 Anulado = reader.GetBoolean("Anulado"),
-                                ContratoId = reader.GetInt32("ContratoId")
+                                ContratoId = reader.GetInt32("Contrato_Id")
                             };
                         }
                     }
@@ -101,8 +101,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
             var lista = new List<Pago>();
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT Id, Numero, Fecha, Importe, Detalle, Anulado, ContratoId 
-                               FROM pago WHERE ContratoId=@contratoId ORDER BY Numero;";
+                string sql = @"SELECT Id, NumeroPago, FechaPago, Importe, Detalle, Anulado, Contrato_Id 
+                               FROM pago WHERE Contrato_Id=@contratoId ORDER BY NumeroPago;";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@contratoId", contratoId);
@@ -114,12 +114,12 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             lista.Add(new Pago
                             {
                                 Id = reader.GetInt32("Id"),
-                                Numero = reader.GetInt32("Numero"),
-                                Fecha = reader.GetDateTime("Fecha"),
+                                Numero = reader.GetInt32("NumeroPago"),
+                                Fecha = reader.GetDateTime("FechaPago"),
                                 Importe = reader.GetDecimal("Importe"),
                                 Detalle = reader.GetString("Detalle"),
                                 Anulado = reader.GetBoolean("Anulado"),
-                                ContratoId = reader.GetInt32("ContratoId")
+                                ContratoId = reader.GetInt32("Contrato_Id")
                             });
                         }
                     }
@@ -127,35 +127,37 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return lista;
         }
+
         public IList<Pago> ObtenerTodos()
-{
-    var res = new List<Pago>();
-    using (var connection = GetConnection())
-    {
-        string sql = @"SELECT id, contrato_id, fecha_pago, importe, numero_pago
-                       FROM pago";
-        using (var command = new MySqlCommand(sql, connection))
         {
-            connection.Open();
-            using (var reader = command.ExecuteReader())
+            var res = new List<Pago>();
+            using (var connection = GetConnection())
             {
-                while (reader.Read())
+                string sql = @"SELECT Id, Contrato_Id, FechaPago, Importe, NumeroPago, Detalle, Anulado
+                               FROM pago";
+                using (var command = new MySqlCommand(sql, connection))
                 {
-                    var pago = new Pago
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
                     {
-                        Id = reader.GetInt32("id"),
-                        ContratoId = reader.GetInt32("contrato_id"),
-                        Fecha = reader.GetDateTime("fecha"),
-                        Importe = reader.GetDecimal("importe"),
-                        Numero = reader.GetInt32("numero")
-                    };
-                    res.Add(pago);
+                        while (reader.Read())
+                        {
+                            var pago = new Pago
+                            {
+                                Id = reader.GetInt32("Id"),
+                                ContratoId = reader.GetInt32("Contrato_Id"),
+                                Fecha = reader.GetDateTime("FechaPago"),
+                                Importe = reader.GetDecimal("Importe"),
+                                Numero = reader.GetInt32("NumeroPago"),
+                                Detalle = reader.GetString("Detalle"),
+                                Anulado = reader.GetBoolean("Anulado")
+                            };
+                            res.Add(pago);
+                        }
+                    }
                 }
             }
+            return res;
         }
-    }
-    return res;
-}
-
     }
 }

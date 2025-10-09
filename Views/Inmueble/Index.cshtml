@@ -3,12 +3,20 @@
 @{
     ViewData["Title"] = "Listado de Inmuebles";
     var rnd = new Random();
+    var soloDisponibles = ViewBag.SoloDisponibles ?? false;
 }
 
-<h1 class="mb-4">@ViewData["Title"]</h1>
+<h1>@ViewData["Title"]</h1>
+
+<form method="get" asp-action="Lista" class="mb-3 w-50">
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="soloDisponibles" id="soloDisponibles" value="true" @(soloDisponibles ? "checked" : "") onchange="this.form.submit()">
+        <label class="form-check-label" for="soloDisponibles">Mostrar solo disponibles</label>
+    </div>
+</form>
 
 <p>
-    <a class="btn btn-success" asp-action="Crear">
+    <a class="btn btn-primary" asp-action="Crear">
         <i class="bi bi-plus-circle"></i> Nuevo Inmueble
     </a>
 </p>
@@ -16,11 +24,12 @@
 <table class="table table-striped table-hover align-middle">
     <thead class="table-dark">
         <tr>
-            <th>@Html.DisplayNameFor(model => model.Id)</th>
-            <th>@Html.DisplayNameFor(model => model.Direccion)</th>
-            <th>@Html.DisplayNameFor(model => model.Ambientes)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Id)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Direccion)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Ambientes)</th>
             <th>Propietario</th>
-            <th>@Html.DisplayNameFor(model => model.Portada)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Portada)</th>
+            <th>Disponible</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -33,7 +42,7 @@
                     <td>@item.Id</td>
                     <td>@item.Direccion</td>
                     <td>@item.Ambientes</td>
-                    <td>@(item.Duenio != null ? item.Duenio.ToString() : "Sin propietario")</td>
+                    <td>@(item.Duenio != null ? $"{item.Duenio.Nombre} {item.Duenio.Apellido}" : "Sin propietario")</td>
                     <td>
                         @if (!string.IsNullOrEmpty(item.Portada))
                         {
@@ -45,17 +54,17 @@
                             <span class="text-muted">Sin foto</span>
                         }
                     </td>
+                    <td>@(item.Disponible ? "Sí" : "No")</td>
                     <td>
                         <div class="btn-group" role="group">
                             <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@item.Id" title="Editar">
-                                <i class="bi bi-pencil-square">Editar</i>
+                                <i class="bi bi-pencil-square"></i> Editar
                             </a>
                             <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar">
-                                <i class="bi bi-trash">Eliminar</i>
+                                <i class="bi bi-trash"></i> Eliminar
                             </a>
-
                             <a class="btn btn-secondary btn-sm" asp-action="Imagenes" asp-route-id="@item.Id" title="Ver imágenes">
-                                <i class="bi bi-images">Imagenes</i>
+                                <i class="bi bi-images"></i> Imágenes
                             </a>
                         </div>
                     </td>
@@ -65,8 +74,34 @@
         else
         {
             <tr>
-                <td colspan="6" class="text-center text-muted">No hay inmuebles registrados.</td>
+                <td colspan="7" class="text-center text-muted">No hay inmuebles registrados.</td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- PAGINADO -->
+@if (ViewBag.TotalPaginas != null && ViewBag.TotalPaginas > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+            {
+                var routeValues = new Dictionary<string, string>
+                {
+                    { "pagina", i.ToString() }
+                };
+                if (soloDisponibles)
+                {
+                    routeValues["soloDisponibles"] = "true";
+                }
+
+                <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                    <a class="page-link" asp-action="Lista" asp-all-route-data="routeValues">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+

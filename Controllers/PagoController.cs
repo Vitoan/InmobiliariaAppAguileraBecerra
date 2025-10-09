@@ -26,9 +26,16 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             this.logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? contratoId)
         {
-            var lista = repoPago.ObtenerTodos();
+            IList<Pago> lista;
+            if (contratoId.HasValue)
+                lista = repoPago.ObtenerPorContrato(contratoId.Value);
+            else
+                lista = repoPago.ObtenerTodos();
+
+            ViewBag.ContratoId = contratoId;
+            ViewBag.Contrato = contratoId.HasValue ? repoContrato.ObtenerPorId(contratoId.Value) : null;
             return View(lista);
         }
 
@@ -71,12 +78,13 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 repoAuditoria.Registrar(auditoria);
 
                 TempData["Mensaje"] = "Pago registrado correctamente";
-                return RedirectToAction("DetallesContrato", "Contrato", new { id = pago.ContratoId });
+                return RedirectToAction("Index", new { contratoId = pago.ContratoId });
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error al registrar pago");
                 ModelState.AddModelError("", ex.Message);
+                ViewBag.Contrato = repoContrato.ObtenerPorId(pago.ContratoId);
                 return View(pago);
             }
         }
@@ -127,7 +135,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 repoAuditoria.Registrar(auditoria);
 
                 TempData["Mensaje"] = "Pago anulado correctamente";
-                return RedirectToAction("DetallesContrato", "Contrato", new { id = pago.ContratoId });
+                return RedirectToAction("Index", new { contratoId = pago.ContratoId });
             }
             catch (Exception ex)
             {

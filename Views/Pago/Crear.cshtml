@@ -7,7 +7,7 @@
 <h2>Registrar Pago para Contrato #@contrato?.Id</h2>
 
 <form asp-action="Crear" method="post">
-    <input type="hidden" asp-for="ContratoId" />
+    <input type="hidden" asp-for="ContratoId" value="@contrato?.Id" />
 
     <div class="form-group">
         <label asp-for="Numero"></label>
@@ -35,6 +35,6 @@
 
     <div class="form-group mt-3">
         <input type="submit" value="Guardar" class="btn btn-primary" />
-        <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">Cancelar</a>
+        <a asp-action="Index" asp-route-contratoId="@contrato?.Id" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>

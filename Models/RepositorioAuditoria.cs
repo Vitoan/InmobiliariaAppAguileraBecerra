@@ -175,7 +175,6 @@ namespace InmobiliariaAppAguileraBecerra.Models
                 RegistroId = reader.GetInt32("RegistroId"),
                 Fecha = reader.GetDateTime("fecha"),
                 
-                // LECTURA CORREGIDA: Usando "DatosAnteriores" y "DatosNuevos"
                 DatosAnteriores = reader["DatosAnteriores"] is DBNull ? null : reader.GetString("DatosAnteriores"),
                 DatosNuevos = reader["DatosNuevos"] is DBNull ? null : reader.GetString("DatosNuevos"),
                 

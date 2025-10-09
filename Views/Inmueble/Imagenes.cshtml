@@ -10,7 +10,6 @@
 
 <div class="container mt-5">
     <div class="row">
-        <!-- Sección Portada -->
         <div class="col-md-6">
             <h4>Foto de Portada</h4>
 
@@ -40,7 +39,6 @@
             </form>
         </div>
 
-        <!-- Sección Imágenes Interiores -->
         <div class="col-md-6">
             <h4>Imágenes del Interior</h4>
             <div class="mb-3">
@@ -83,7 +81,14 @@
 </div>
 
 @section Scripts {
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
     <script>
+
+        const notyf = new Notyf();
+
         const id = @Id;
 
         function previsualizar(event) {
@@ -114,14 +119,18 @@
             for (let i = 0; i < files.length; i++) formData.append('imagenes', files[i]);
 
             $.ajax({
-                url: `@Url.Action("Alta", "Imagenes", new {Id=Id})`,
+                url: `@Url.Action("Alta", "Imagenes", new { id = Id })`,
                 type: 'POST',
                 data: formData,
                 contentType: false,
                 processData: false,
-            }).done(function (imagenes) {
-                notyf.success('Imágenes subidas con éxito');
-                mostrarImagenes(imagenes);
+            }).done(function (res) {
+                if(res && res.length > 0){
+                    notyf.success('Imágenes subidas correctamente');
+                    mostrarImagenes(res);
+                } else {
+                    notyf.error('No se pudieron subir las imágenes');
+                }
             }).fail(function () {
                 notyf.error('Error al subir las imágenes');
             }).always(function () {
@@ -131,9 +140,17 @@
         }
 
         function eliminarImagen(imagenId) {
-            $.post(`/Imagenes/Eliminar/${imagenId}`).done(function (imagenes) {
-                notyf.success('Imagen eliminada');
-                mostrarImagenes(imagenes);
+            $.ajax({
+                url: `/Imagenes/Eliminar/${imagenId}`,
+                type: 'POST',
+                dataType: 'json'
+            }).done(function (res) {
+                if(res.exito){
+                    notyf.success(res.mensaje);
+                    mostrarImagenes(res.imagenes);
+                } else {
+                    notyf.error(res.mensaje);
+                }
             }).fail(function () {
                 notyf.error('Error al eliminar la imagen');
             });

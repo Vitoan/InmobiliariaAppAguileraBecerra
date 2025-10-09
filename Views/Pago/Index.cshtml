@@ -1,12 +1,12 @@
 @model IEnumerable<InmobiliariaAppAguileraBecerra.Models.Pago>
 @{
     ViewData["Title"] = "Pagos";
-    var contrato = ViewBag.Contrato;
+    var contratoId = ViewBag.ContratoId as int?;
 }
 
-<h2>Pagos del Contrato #@contrato?.Id</h2>
+<h2>Pagos del Contrato #@contratoId</h2>
 <p>
-    <a class="btn btn-success" asp-action="Crear" asp-route-contratoId="@contrato?.Id">
+    <a class="btn btn-success" asp-action="Crear" asp-route-contratoId="@contratoId">
         <i class="bi bi-plus-circle"></i> Nuevo Pago
     </a>
     <a class="btn btn-secondary" asp-controller="Contrato" asp-action="Index">Volver a Contratos</a>

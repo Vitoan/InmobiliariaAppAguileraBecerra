@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using InmobiliariaAppAguileraBecerra.Models;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
@@ -41,7 +43,6 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             if (contrato == null)
                 return NotFound();
 
-            // Traer auditorías relacionadas a este contrato
             var auditorias = repoAuditoria.ObtenerPorTablaYRegistro("Contrato", id);
             ViewBag.Auditorias = auditorias;
 
@@ -50,8 +51,20 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         public IActionResult Crear()
         {
-            ViewBag.Inquilinos = repoInquilino.ObtenerTodos();
-            ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles();
+            ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
+                .Select(i => new SelectListItem
+                {
+                    Value = i.Id.ToString(),
+                    Text = $"{i.Nombre} {i.Apellido}"
+                }).ToList();
+
+            ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles()
+                .Select(i => new SelectListItem
+                {
+                    Value = i.Id.ToString(),
+                    Text = i.Direccion
+                }).ToList();
+
             return View();
         }
 
@@ -61,8 +74,20 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Inquilinos = repoInquilino.ObtenerTodos();
-                ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles();
+                ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
+                    .Select(i => new SelectListItem
+                    {
+                        Value = i.Id.ToString(),
+                        Text = $"{i.Nombre} {i.Apellido}"
+                    }).ToList();
+
+                ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles()
+                    .Select(i => new SelectListItem
+                    {
+                        Value = i.Id.ToString(),
+                        Text = i.Direccion
+                    }).ToList();
+
                 return View(contrato);
             }
 
@@ -98,6 +123,21 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             {
                 logger.LogError(ex, "Error al crear contrato");
                 ModelState.AddModelError("", ex.Message);
+
+                ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
+                    .Select(i => new SelectListItem
+                    {
+                        Value = i.Id.ToString(),
+                        Text = $"{i.Nombre} {i.Apellido}"
+                    }).ToList();
+
+                ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles()
+                    .Select(i => new SelectListItem
+                    {
+                        Value = i.Id.ToString(),
+                        Text = i.Direccion
+                    }).ToList();
+
                 return View(contrato);
             }
         }
@@ -108,8 +148,20 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             if (contrato == null)
                 return NotFound();
 
-            ViewBag.Inquilinos = repoInquilino.ObtenerTodos();
-            ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles();
+            ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
+                .Select(i => new SelectListItem
+                {
+                    Value = i.Id.ToString(),
+                    Text = $"{i.Nombre} {i.Apellido}"
+                }).ToList();
+
+            ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles()
+                .Select(i => new SelectListItem
+                {
+                    Value = i.Id.ToString(),
+                    Text = i.Direccion
+                }).ToList();
+
             return View(contrato);
         }
 
@@ -119,16 +171,29 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Inquilinos = repoInquilino.ObtenerTodos();
-                ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles();
+                ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
+                    .Select(i => new SelectListItem
+                    {
+                        Value = i.Id.ToString(),
+                        Text = $"{i.Nombre} {i.Apellido}"
+                    }).ToList();
+
+                ViewBag.Inmuebles = repoInmueble.ObtenerDisponibles()
+                    .Select(i => new SelectListItem
+                    {
+                        Value = i.Id.ToString(),
+                        Text = i.Direccion
+                    }).ToList();
+
                 return View(contrato);
             }
 
             try
             {
                 var anterior = repoContrato.ObtenerPorId(id);
-                if (anterior == null) //fix?
+                if (anterior == null)
                     return NotFound();
+
                 repoContrato.Modificacion(contrato);
 
                 var datosAnteriores = new

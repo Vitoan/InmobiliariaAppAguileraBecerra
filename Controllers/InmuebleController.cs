@@ -2,9 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using InmobiliariaAppAguileraBecerra.Models;
+using System.Collections.Generic;
+using System.IO;
+using System;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {
+    [Authorize]
     public class InmuebleController : Controller
     {
         private readonly RepositorioInmueble repositorio;
@@ -17,42 +21,72 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             this.repoPropietario = new RepositorioPropietario();
         }
 
-        public IActionResult Lista(int pagina = 1)
+        public IActionResult Lista(int pagina = 1, bool soloDisponibles = false)
         {
-            var totalInmuebles = repositorio.ObtenerCantidad();
+            IList<Inmueble> lista;
+            int totalInmuebles;
+
+            if (soloDisponibles)
+            {
+                lista = repositorio.ObtenerDisponiblesPaginados(pagina, TamañoPagina);
+                totalInmuebles = repositorio.ObtenerCantidadDisponibles();
+            }
+            else
+            {
+                lista = repositorio.ObtenerLista(pagina, TamañoPagina);
+                totalInmuebles = repositorio.ObtenerCantidad();
+            }
+
             var totalPaginas = (int)Math.Ceiling((double)totalInmuebles / TamañoPagina);
-            var lista = repositorio.ObtenerLista(pagina, TamañoPagina);
+
             ViewBag.Pagina = pagina;
             ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.SoloDisponibles = soloDisponibles;
+
             return View(lista);
         }
 
-        public ActionResult Index()
+        public IActionResult Index(bool soloDisponibles = false)
         {
-            var lista = repositorio.ObtenerTodos();
-            if (TempData.ContainsKey("Id"))
-                ViewBag.Id = TempData["Id"];
-            if (TempData.ContainsKey("Mensaje"))
-                ViewBag.Mensaje = TempData["Mensaje"];
-            return View(lista);
+            IList<Inmueble> inmuebles;
+            if (soloDisponibles)
+            {
+                inmuebles = repositorio.ObtenerDisponibles();
+            }
+            else
+            {
+                inmuebles = repositorio.ObtenerTodos();
+            }
+
+            ViewBag.SoloDisponibles = soloDisponibles;
+            return View(inmuebles);
         }
 
         [HttpGet]
-        public ActionResult PorPropietario(int id)
+        public ActionResult PorPropietario(int? id)
         {
-            var lista = repositorio.BuscarPorPropietario(id);
-            return Ok(lista);
+            var propietarios = repoPropietario.ObtenerTodos();
+            ViewBag.Propietarios = propietarios;
+
+            Propietario propietarioSeleccionado = null;
+            List<Inmueble> lista = new List<Inmueble>();
+
+            if (id.HasValue)
+            {
+                propietarioSeleccionado = repoPropietario.ObtenerPorId(id.Value);
+                if (propietarioSeleccionado != null)
+                    lista = repositorio.BuscarPorPropietario(id.Value).ToList();
+            }
+
+            ViewBag.Propietario = propietarioSeleccionado;
+            return View(lista);
         }
 
         public ActionResult Imagenes(int id, [FromServices] IRepositorioImagen repoImagen)
         {
-            // Traemos el inmueble actualizado con la portada
             var entidad = repositorio.ObtenerPorId(id);
             if (entidad == null) return NotFound();
-
-            // Traemos las imágenes interiores
             entidad.Imagenes = repoImagen.BuscarPorInmueble(id);
-
             return View(entidad);
         }
 
@@ -64,7 +98,6 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             try
             {
                 var inmueble = repositorio.ObtenerPorId(entidad.InmuebleId);
-
                 if (inmueble != null && !string.IsNullOrEmpty(inmueble.Portada))
                 {
                     string rutaEliminar = Path.Combine(environment.WebRootPath, "Uploads", "Inmuebles", Path.GetFileName(inmueble.Portada));
@@ -94,7 +127,6 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 }
 
                 repositorio.ModificarPortada(entidad.InmuebleId, entidad.Url);
-
                 TempData["Mensaje"] = "Portada actualizada correctamente";
                 return RedirectToAction(nameof(Imagenes), new { id = entidad.InmuebleId });
             }
@@ -105,11 +137,10 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             }
         }
 
-
         [Authorize]
         public ActionResult Crear()
         {
-            ViewData["Propietarios"] = repoPropietario.ObtenerTodos();
+            ViewBag.Propietarios = repoPropietario.ObtenerTodos();
             return View();
         }
 
@@ -166,7 +197,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Policy = "Administrador")]
         public ActionResult Eliminar(int id)
         {
             var entidad = repositorio.ObtenerPorId(id);
@@ -175,7 +206,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(entidad);
         }
 
-        [Authorize]
+        [Authorize(Policy = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Eliminar(int id, Inmueble entidad)

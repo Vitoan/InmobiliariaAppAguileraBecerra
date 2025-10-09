@@ -2,53 +2,101 @@
 
 @{
     ViewData["Title"] = "Inmuebles por Propietario";
-    var propietario = ViewBag.Propietario;
+    var propietarios = ViewBag.Propietarios as IEnumerable<InmobiliariaAppAguileraBecerra.Models.Propietario>;
+    var propietarioSeleccionado = ViewBag.Propietario as InmobiliariaAppAguileraBecerra.Models.Propietario;
+    var rnd = new Random();
 }
 
-<h1>Inmuebles de @propietario.Nombre @propietario.Apellido</h1>
+<h1>Inmuebles por Propietario</h1>
 
-<p>
-    <a class="btn btn-primary" asp-action="Crear" asp-route-propietarioId="@propietario.Id">
-        <i class="fa-solid fa-plus"></i> Nuevo Inmueble
-    </a>
-</p>
+<form method="get" asp-action="PorPropietario">
+    <div class="mb-3 w-50">
+        <label for="propietarioSelect" class="form-label">Seleccione un propietario:</label>
+        <select id="propietarioSelect" name="id" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Seleccionar --</option>
+            @foreach (var p in propietarios)
+            {
+                if (propietarioSeleccionado != null && p.Id == propietarioSeleccionado.Id)
+                {
+                    @:<option value="@p.Id" selected>@p.Nombre @p.Apellido</option>
+                }
+                else
+                {
+                    @:<option value="@p.Id">@p.Nombre @p.Apellido</option>
+                }
+            }
+        </select>
+    </div>
+</form>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.First().Id)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Direccion)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Ambientes)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Latitud)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Longitud)</th>
-            <th>Propietario</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (propietarioSeleccionado != null)
+{
+    <h2>Inmuebles de @propietarioSeleccionado.Nombre @propietarioSeleccionado.Apellido</h2>
+
+    <p>
+        <a class="btn btn-primary" asp-action="Crear" asp-route-propietarioId="@propietarioSeleccionado.Id">
+            <i class="fa-solid fa-plus"></i> Nuevo Inmueble
+        </a>
+    </p>
+
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
             <tr>
-                <td>@item.Id</td>
-                <td>@item.Direccion</td>
-                <td>@item.Ambientes</td>
-                <td>@item.Latitud</td>
-                <td>@item.Longitud</td>
-                <td>@(item.Duenio != null ? $"{item.Duenio.Nombre} {item.Duenio.Apellido}" : "")</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Editar" asp-route-id="@item.Id" title="Editar">
-                            <i class="fa-solid fa-pen"></i>
-                        </a>
-                        <a class="btn btn-secondary" asp-action="Detalle" asp-route-id="@item.Id" title="Detalle">
-                            <i class="fa-solid fa-eye"></i>
-                        </a>
-                        <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </a>
-                    </div>
-                </td>
+                <th>@Html.DisplayNameFor(model => model.First().Id)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Direccion)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Ambientes)</th>
+                <th>Propietario</th>
+                <th>@Html.DisplayNameFor(model => model.First().Portada)</th>
+                <th>Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Direccion</td>
+                        <td>@item.Ambientes</td>
+                        <td>@(item.Duenio != null ? $"{item.Duenio.Nombre} {item.Duenio.Apellido}" : "Sin propietario")</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Portada))
+                            {
+                                var x = item.Portada + "?" + rnd.Next();
+                                <img src="@x" width="50" class="img-thumbnail" />
+                            }
+                            else
+                            {
+                                <span class="text-muted">Sin foto</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@item.Id" title="Editar">
+                                    <i class="bi bi-pencil-square">Editar</i>
+                                </a>
+                                <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar">
+                                    <i class="bi bi-trash">Eliminar</i>
+                                </a>
+                                <a class="btn btn-secondary btn-sm" asp-action="Imagenes" asp-route-id="@item.Id" title="Ver imágenes">
+                                    <i class="bi bi-images">Imagenes</i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay inmuebles para este propietario.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">Seleccione un propietario para ver sus inmuebles.</p>
+}

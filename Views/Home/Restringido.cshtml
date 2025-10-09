@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Acceso Restringido";
+    Layout = "_Layout";
+}
+
+<h1>Acceso Restringido</h1>
+<p>No tiene permisos suficientes para acceder a este recurso.</p>
+
+@if(ViewData["ReturnUrl"] != null)
+{
+    <p>Intentaste acceder a: @ViewData["ReturnUrl"]</p>
+}

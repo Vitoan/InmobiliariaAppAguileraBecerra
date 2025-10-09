@@ -71,7 +71,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             return View(p);
         }
 
-        [Authorize]
+        [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             var p = _repositorio.ObtenerPorId(id);
@@ -81,7 +81,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Policy = "Administrador")]
         public IActionResult ConfirmarEliminar(int id)
         {
             int resultado = _repositorio.Baja(id);

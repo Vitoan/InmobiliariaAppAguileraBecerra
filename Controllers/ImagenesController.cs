@@ -69,26 +69,23 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             {
                 var img = _repositorio.ObtenerPorId(id);
                 if (img == null)
-                    return NotFound();
+                    return Json(new { exito = false, mensaje = "No se encontró la imagen", imagenes = new List<object>() });
 
-                // Eliminar archivo físico
                 var rutaFisica = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", img.Url.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
                 if (System.IO.File.Exists(rutaFisica))
                     System.IO.File.Delete(rutaFisica);
 
-                // Eliminar de la DB
                 _repositorio.Eliminar(id);
 
-                // Devolver lista actualizada
                 var listaActualizada = _repositorio.BuscarPorInmueble(img.InmuebleId)
                     .Select(i => new { id = i.Id, url = i.Url })
                     .ToList();
 
-                return Json(listaActualizada);
+                return Json(new { exito = true, mensaje = "Imagen eliminada correctamente", imagenes = listaActualizada });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Json(new { exito = false, mensaje = "Error: " + ex.Message, imagenes = new List<object>() });
             }
         }
     }
