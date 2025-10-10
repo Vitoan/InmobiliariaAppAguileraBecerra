@@ -219,7 +219,90 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
                 return RedirectToAction(nameof(Detalles), new { id });
             }
         }
+[Authorize(Policy = "Administrador")]
+public IActionResult Editar(int id)
+{
+    var contrato = repoContrato.ObtenerPorId(id);
+    if (contrato == null)
+        return NotFound();
 
+    ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
+        .Select(i => new SelectListItem
+        {
+            Value = i.Id.ToString(),
+            Text = $"{i.Nombre} {i.Apellido}"
+        }).ToList();
+
+    ViewBag.Inmuebles = repoInmueble.ObtenerTodos()
+        .Select(i => new SelectListItem
+        {
+            Value = i.Id.ToString(),
+            Text = i.Direccion
+        }).ToList();
+
+    return View(contrato);
+}
+
+// =====================================================
+// 🔹 POST: /Contrato/Editar/5
+// =====================================================
+[Authorize(Policy = "Administrador")]
+[HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult Editar(int id, Contrato contrato)
+{
+    if (id != contrato.Id)
+        return NotFound();
+
+    try
+    {
+        var anterior = repoContrato.ObtenerPorId(id);
+        if (anterior == null)
+            return NotFound();
+
+        if (ModelState.IsValid)
+        {
+            repoContrato.Modificacion(contrato);
+
+            // --- Guardar auditoría ---
+            var auditoria = new Auditoria
+            {
+                Tabla = "Contrato",
+                Operacion = "Modificación",
+                RegistroId = contrato.Id,
+                DatosAnteriores = JsonSerializer.Serialize(anterior),
+                DatosNuevos = JsonSerializer.Serialize(contrato),
+                Usuario = User?.Identity?.Name ?? "Sistema"
+            };
+            repoAuditoria.Registrar(auditoria);
+
+            TempData["Mensaje"] = "Contrato modificado correctamente";
+            return RedirectToAction(nameof(Detalles), new { id = contrato.Id });
+        }
+
+        ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
+            .Select(i => new SelectListItem
+            {
+                Value = i.Id.ToString(),
+                Text = $"{i.Nombre} {i.Apellido}"
+            }).ToList();
+
+        ViewBag.Inmuebles = repoInmueble.ObtenerTodos()
+            .Select(i => new SelectListItem
+            {
+                Value = i.Id.ToString(),
+                Text = i.Direccion
+            }).ToList();
+
+        return View(contrato);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error al editar contrato");
+        TempData["Error"] = "Error al editar el contrato: " + ex.Message;
+        return RedirectToAction(nameof(Index));
+    }
+}
         [HttpGet]
         public IActionResult PorFecha(DateTime? fechaInicio, DateTime? fechaFin)
         {

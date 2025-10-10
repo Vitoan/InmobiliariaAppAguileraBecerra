@@ -7,6 +7,7 @@
 }
 
 <div class="container mt-4">
+    <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="text-primary">
             <i class="bi bi-file-earmark-text"></i> @ViewData["Title"]
@@ -16,6 +17,7 @@
         </a>
     </div>
 
+    <!-- Información general -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
             <h4 class="card-title text-dark mb-3">
@@ -41,14 +43,34 @@
                 @if (Model.FechaFinAnticipada != null)
                 {
                     <dt class="col-sm-3 text-danger">Finalización Anticipada:</dt>
-                    <dd class="col-sm-9 text-danger">@Model.FechaFinAnticipada?.ToString("dd/MM/yyyy")</dd>
+                    <dd class="col-sm-9 text-danger">
+                        <span class="badge bg-danger">
+                            @Model.FechaFinAnticipada?.ToString("dd/MM/yyyy")
+                        </span>
+                    </dd>
                 }
 
                 <dt class="col-sm-3">Monto mensual:</dt>
-                <dd class="col-sm-9">$@Model.Monto.ToString("N2")</dd>
+                <dd class="col-sm-9">
+                    <span class="badge bg-success">
+                        $@Model.Monto.ToString("N2")
+                    </span>
+                </dd>
 
                 <dt class="col-sm-3">Multa:</dt>
-                <dd class="col-sm-9">@Model.Multa != null ? "$" + Model.Multa.Value.ToString("N2") : "-"</dd>
+                <dd class="col-sm-9">
+                    @if (Model.Multa.HasValue)
+                    {
+                        <span class="badge bg-info text-dark">
+                            $@Model.Multa.Value.ToString("N2")
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Ninguna</span>
+                    }
+                </dd>
+
                 <dt class="col-sm-3">Vigente:</dt>
                 <dd class="col-sm-9">
                     @if (Model.Vigente)
@@ -64,6 +86,7 @@
         </div>
     </div>
 
+    <!-- Botones de acción -->
     <div class="text-end mb-4">
         <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-warning me-2">
             <i class="bi bi-pencil-square"></i> Editar
@@ -71,7 +94,7 @@
 
         @if (!Model.Vigente && Model.Inmueble?.Disponible == true)
         {
-            <a asp-action="Crear" asp-route-idContratoOriginal="@Model.Id" class="btn btn-success">
+            <a asp-action="Crear" asp-route-idContratoOriginal="@Model.Id" class="btn btn-success me-2">
                 <i class="bi bi-arrow-repeat"></i> Renovar Contrato
             </a>
         }
@@ -90,7 +113,9 @@
             <div class="modal-content">
                 <form asp-action="Terminar" method="post">
                     <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="modalTerminarLabel"><i class="bi bi-exclamation-triangle"></i> Terminar Contrato</h5>
+                        <h5 class="modal-title" id="modalTerminarLabel">
+                            <i class="bi bi-exclamation-triangle"></i> Terminar Contrato
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
@@ -173,3 +198,7 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

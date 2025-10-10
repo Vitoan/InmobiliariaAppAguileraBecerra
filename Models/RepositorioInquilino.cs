@@ -14,7 +14,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
             {
                 using (var connection = GetConnection())
                 {
-                    string sql = @"INSERT INTO inquilino (Nombre, Apellido, DNI, Telefono, Email)
+                    // CORRECCIÓN: Nombres de columna en snake_case en la tabla
+                    string sql = @"INSERT INTO inquilino (nombre, apellido, dni, telefono, email)
                                    VALUES (@nombre, @apellido, @dni, @telefono, @email);
                                    SELECT LAST_INSERT_ID();";
                     using (var command = new MySqlCommand(sql, connection))
@@ -50,7 +51,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
                 using (var connection = GetConnection())
                 {
                     connection.Open();
-                    string sqlChequeo = "SELECT COUNT(*) FROM contrato WHERE Inquilino_Id = @id";
+                    // CORRECCIÓN: La columna es inquilino_id, no Inquilino_Id
+                    string sqlChequeo = "SELECT COUNT(*) FROM contrato WHERE inquilino_id = @id";
                     using (var cmdChequeo = new MySqlCommand(sqlChequeo, connection))
                     {
                         cmdChequeo.Parameters.AddWithValue("@id", id);
@@ -59,7 +61,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             return 0;
                     }
 
-                    string sql = "DELETE FROM inquilino WHERE Id = @id";
+                    // CORRECCIÓN: La columna es id, no Id
+                    string sql = "DELETE FROM inquilino WHERE id = @id";
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
@@ -81,9 +84,10 @@ namespace InmobiliariaAppAguileraBecerra.Models
             {
                 using (var connection = GetConnection())
                 {
+                    // CORRECCIÓN: Nombres de columna en snake_case
                     string sql = @"UPDATE inquilino 
-                                   SET Nombre=@nombre, Apellido=@apellido, DNI=@dni, Telefono=@telefono, Email=@email 
-                                   WHERE Id = @id";
+                                   SET nombre=@nombre, apellido=@apellido, dni=@dni, telefono=@telefono, email=@email 
+                                   WHERE id = @id"; // WHERE id también corregido
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         command.CommandType = CommandType.Text;
@@ -116,7 +120,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
             {
                 using (var connection = GetConnection())
                 {
-                    string sql = @"SELECT Id, Nombre, Apellido, DNI, Telefono, Email FROM inquilino";
+                    // CORRECCIÓN: Uso de alias AS para mapear snake_case a PascalCase
+                    string sql = @"SELECT id AS Id, nombre AS Nombre, apellido AS Apellido, dni AS DNI, telefono AS Telefono, email AS Email 
+                                   FROM inquilino";
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         command.CommandType = CommandType.Text;
@@ -127,6 +133,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             {
                                 res.Add(new Inquilino
                                 {
+                                    // La lectura en C# sigue usando PascalCase gracias a los alias AS
                                     Id = reader.GetInt32("Id"),
                                     Nombre = reader.GetString("Nombre") ?? "",
                                     Apellido = reader.GetString("Apellido") ?? "",
@@ -153,7 +160,10 @@ namespace InmobiliariaAppAguileraBecerra.Models
             {
                 using (var connection = GetConnection())
                 {
-                    string sql = @"SELECT Id, Nombre, Apellido, DNI, Telefono, Email FROM inquilino WHERE Id = @id";
+                    // CORRECCIÓN: Uso de alias AS para mapear snake_case a PascalCase y WHERE id
+                    string sql = @"SELECT id AS Id, nombre AS Nombre, apellido AS Apellido, dni AS DNI, telefono AS Telefono, email AS Email 
+                                   FROM inquilino 
+                                   WHERE id = @id";
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         command.CommandType = CommandType.Text;
@@ -165,6 +175,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             {
                                 i = new Inquilino
                                 {
+                                    // La lectura en C# sigue usando PascalCase gracias a los alias AS
                                     Id = reader.GetInt32("Id"),
                                     Nombre = reader.GetString("Nombre") ?? "",
                                     Apellido = reader.GetString("Apellido") ?? "",

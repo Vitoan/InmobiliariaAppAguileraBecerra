@@ -1,10 +1,15 @@
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.Collections.Generic;
+using System;
 
 namespace InmobiliariaAppAguileraBecerra.Models
 {
     public class RepositorioContrato : RepositorioBase
     {
+        // ======================================================
+        // 🔹 ALTA DE CONTRATO
+        // ======================================================
         public int Alta(Contrato c)
         {
             int res = -1;
@@ -12,9 +17,11 @@ namespace InmobiliariaAppAguileraBecerra.Models
             {
                 using (var connection = GetConnection())
                 {
-                    string sql = @"INSERT INTO contrato (FechaInicio, FechaFin, Monto, InquilinoId, InmuebleId, Vigente)
+                    string sql = @"INSERT INTO contrato 
+                                   (FechaInicio, FechaFin, Monto, InquilinoId, InmuebleId, Vigente)
                                    VALUES (@fechaInicio, @fechaFin, @monto, @inquilinoId, @inmuebleId, @vigente);
                                    SELECT LAST_INSERT_ID();";
+
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         command.CommandType = CommandType.Text;
@@ -25,7 +32,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                         command.Parameters.AddWithValue("@inmuebleId", c.InmuebleId);
                         command.Parameters.AddWithValue("@vigente", c.Vigente);
                         connection.Open();
-                        res = Convert.ToInt32(command.ExecuteScalar() ?? 0);
+                        res = Convert.ToInt32(command.ExecuteScalar());
                         c.Id = res;
                     }
                 }
@@ -37,6 +44,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
             return res;
         }
 
+        // ======================================================
+        // 🔹 MODIFICAR CONTRATO
+        // ======================================================
         public int Modificacion(Contrato c)
         {
             int res = -1;
@@ -45,8 +55,11 @@ namespace InmobiliariaAppAguileraBecerra.Models
                 using (var connection = GetConnection())
                 {
                     string sql = @"UPDATE contrato
-                                   SET FechaInicio=@fechaInicio, FechaFin=@fechaFin, Monto=@monto, InquilinoId=@inquilinoId, InmuebleId=@inmuebleId, Vigente=@vigente
-                                   WHERE Id = @id";
+                                   SET FechaInicio=@fechaInicio, FechaFin=@fechaFin, Monto=@monto, 
+                                       InquilinoId=@inquilinoId, InmuebleId=@inmuebleId, Vigente=@vigente,
+                                       FechaFinAnticipada=@fechaFinAnticipada, Multa=@multa
+                                   WHERE Id = @id;";
+
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         command.CommandType = CommandType.Text;
@@ -56,6 +69,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
                         command.Parameters.AddWithValue("@inquilinoId", c.InquilinoId);
                         command.Parameters.AddWithValue("@inmuebleId", c.InmuebleId);
                         command.Parameters.AddWithValue("@vigente", c.Vigente);
+                        command.Parameters.AddWithValue("@fechaFinAnticipada", c.FechaFinAnticipada);
+                        command.Parameters.AddWithValue("@multa", c.Multa);
                         command.Parameters.AddWithValue("@id", c.Id);
                         connection.Open();
                         res = command.ExecuteNonQuery();
@@ -68,7 +83,36 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return res;
         }
-        
+
+        // ======================================================
+        // 🔹 BAJA LÓGICA (TERMINAR CONTRATO)
+        // ======================================================
+        public int Baja(int id)
+        {
+            int res = -1;
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    string sql = @"UPDATE contrato SET Vigente = 0 WHERE Id = @id;";
+                    using (var command = new MySqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", id);
+                        connection.Open();
+                        res = command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al dar de baja el contrato.", ex);
+            }
+            return res;
+        }
+
+        // ======================================================
+        // 🔹 OBTENER TODOS LOS CONTRATOS
+        // ======================================================
         public IList<Contrato> ObtenerTodos()
         {
             var res = new List<Contrato>();
@@ -76,12 +120,24 @@ namespace InmobiliariaAppAguileraBecerra.Models
             {
                 using (var connection = GetConnection())
                 {
-                    string sql = @"SELECT c.Id, c.FechaInicio, c.FechaFin, c.Monto, c.InquilinoId, c.InmuebleId, c.Vigente,
-                           i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido,
-                           inm.Direccion AS InmuebleDireccion
-                           FROM contrato c
-                           INNER JOIN inquilino i ON c.InquilinoId = i.Id
-                           INNER JOIN inmueble inm ON c.InmuebleId = inm.Id";
+                    string sql = @"
+                        SELECT 
+                            c.Id AS Id,
+                            c.FechaInicio AS FechaInicio,
+                            c.FechaFin AS FechaFin,
+                            c.Monto AS Monto,
+                            c.InquilinoId AS InquilinoId,
+                            c.InmuebleId AS InmuebleId,
+                            c.Vigente AS Vigente,
+                            c.FechaFinAnticipada AS FechaFinAnticipada,
+                            c.Multa AS Multa,
+                            i.Nombre AS InquilinoNombre,
+                            i.Apellido AS InquilinoApellido,
+                            inm.Direccion AS InmuebleDireccion
+                        FROM contrato c
+                        INNER JOIN inquilino i ON c.InquilinoId = i.Id
+                        INNER JOIN inmueble inm ON c.InmuebleId = inm.Id;";
+
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         connection.Open();
@@ -89,7 +145,7 @@ namespace InmobiliariaAppAguileraBecerra.Models
                         {
                             while (reader.Read())
                             {
-                                res.Add(new Contrato
+                                var contrato = new Contrato
                                 {
                                     Id = reader.GetInt32("Id"),
                                     FechaInicio = reader.GetDateTime("FechaInicio"),
@@ -98,6 +154,10 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                     InquilinoId = reader.GetInt32("InquilinoId"),
                                     InmuebleId = reader.GetInt32("InmuebleId"),
                                     Vigente = reader.GetBoolean("Vigente"),
+                                    FechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada"))
+                                        ? null : reader.GetDateTime("FechaFinAnticipada"),
+                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
+                                        ? null : reader.GetDecimal("Multa"),
                                     Inquilino = new Inquilino
                                     {
                                         Id = reader.GetInt32("InquilinoId"),
@@ -109,7 +169,8 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                         Id = reader.GetInt32("InmuebleId"),
                                         Direccion = reader.GetString("InmuebleDireccion")
                                     }
-                                });
+                                };
+                                res.Add(contrato);
                             }
                         }
                     }
@@ -122,7 +183,9 @@ namespace InmobiliariaAppAguileraBecerra.Models
             return res;
         }
 
-
+        // ======================================================
+        // 🔹 OBTENER CONTRATO POR ID
+        // ======================================================
         public Contrato? ObtenerPorId(int id)
         {
             Contrato? c = null;
@@ -130,14 +193,26 @@ namespace InmobiliariaAppAguileraBecerra.Models
             {
                 using (var connection = GetConnection())
                 {
-                    string sql = @"SELECT c.Id, c.FechaInicio, c.FechaFin, c.Monto, c.InquilinoId, c.InmuebleId, c.Vigente, c.FechaFinAnticipada, c.Multa,
-                                   i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido,
-                                   inm.Direccion AS InmuebleDireccion,
-                                   inm.Disponible
-                                   FROM contrato c
-                                   INNER JOIN inquilino i ON c.InquilinoId = i.Id
-                                   INNER JOIN inmueble inm ON c.InmuebleId = inm.Id
-                                   WHERE c.Id = @id";
+                    string sql = @"
+                        SELECT 
+                            c.Id AS Id,
+                            c.FechaInicio AS FechaInicio,
+                            c.FechaFin AS FechaFin,
+                            c.Monto AS Monto,
+                            c.InquilinoId AS InquilinoId,
+                            c.InmuebleId AS InmuebleId,
+                            c.Vigente AS Vigente,
+                            c.FechaFinAnticipada AS FechaFinAnticipada,
+                            c.Multa AS Multa,
+                            i.Nombre AS InquilinoNombre,
+                            i.Apellido AS InquilinoApellido,
+                            inm.Direccion AS InmuebleDireccion,
+                            inm.Disponible
+                        FROM contrato c
+                        INNER JOIN inquilino i ON c.InquilinoId = i.Id
+                        INNER JOIN inmueble inm ON c.InmuebleId = inm.Id
+                        WHERE c.Id = @id;";
+
                     using (var command = new MySqlCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
@@ -155,8 +230,10 @@ namespace InmobiliariaAppAguileraBecerra.Models
                                     InquilinoId = reader.GetInt32("InquilinoId"),
                                     InmuebleId = reader.GetInt32("InmuebleId"),
                                     Vigente = reader.GetBoolean("Vigente"),
-                                    FechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada")) ? null : reader.GetDateTime("FechaFinAnticipada"),
-                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa")) ? null : reader.GetDecimal("Multa"),
+                                    FechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada"))
+                                        ? null : reader.GetDateTime("FechaFinAnticipada"),
+                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
+                                        ? null : reader.GetDecimal("Multa"),
                                     Inquilino = new Inquilino
                                     {
                                         Id = reader.GetInt32("InquilinoId"),
