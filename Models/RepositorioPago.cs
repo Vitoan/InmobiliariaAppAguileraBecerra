@@ -127,6 +127,24 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return lista;
         }
+ // ======================================================
+        // 🔹 CONTAR PAGOS REALIZADOS DE UN CONTRATO
+        // ======================================================
+        public int ContarPorContrato(int contratoId)
+{
+    int cantidad = 0;
+    using (var connection = GetConnection())
+    {
+        string sql = "SELECT COUNT(*) FROM pago WHERE contrato_id=@id";
+        using (var command = new MySqlCommand(sql, connection))
+        {
+            command.Parameters.AddWithValue("@id", contratoId);
+            connection.Open();
+            cantidad = Convert.ToInt32(command.ExecuteScalar() ?? 0);
+        }
+    }
+    return cantidad;
+}
 
         public IList<Pago> ObtenerTodos()
         {
