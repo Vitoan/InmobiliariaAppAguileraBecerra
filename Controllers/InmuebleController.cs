@@ -72,7 +72,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             var propietarios = repoPropietario.ObtenerTodos();
             ViewBag.Propietarios = propietarios;
 
-            Propietario propietarioSeleccionado = null;
+            Propietario? propietarioSeleccionado = null;
             List<Inmueble> lista = new List<Inmueble>();
 
             if (id.HasValue)

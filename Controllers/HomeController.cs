@@ -23,7 +23,7 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Restringido(string returnUrl = null)
+    public IActionResult Restringido(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
         return View();

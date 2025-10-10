@@ -14,17 +14,21 @@
         <label for="propietarioSelect" class="form-label">Seleccione un propietario:</label>
         <select id="propietarioSelect" name="id" class="form-select" onchange="this.form.submit()">
             <option value="">-- Seleccionar --</option>
-            @foreach (var p in propietarios)
+            @if (propietarios != null)
             {
-                if (propietarioSeleccionado != null && p.Id == propietarioSeleccionado.Id)
+                foreach (var p in propietarios)
                 {
-                    @:<option value="@p.Id" selected>@p.Nombre @p.Apellido</option>
-                }
-                else
-                {
-                    @:<option value="@p.Id">@p.Nombre @p.Apellido</option>
+                    if (propietarioSeleccionado != null && p.Id == propietarioSeleccionado.Id)
+                    {
+                        @:<option value="@p.Id" selected>@p.Nombre @p.Apellido</option>
+                    }
+                    else
+                    {
+                        @:<option value="@p.Id">@p.Nombre @p.Apellido</option>
+                    }
                 }
             }
+
         </select>
     </div>
 </form>

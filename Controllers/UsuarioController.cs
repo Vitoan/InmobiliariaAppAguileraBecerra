@@ -260,8 +260,14 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             var returnUrl = String.IsNullOrEmpty(TempData["returnUrl"] as string) ? "/Home" : (TempData["returnUrl"] ?? "").ToString();
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(login.Clave) || string.IsNullOrEmpty(login.Usuario))
+                {
+                    ModelState.AddModelError("", "Email y contraseña son obligatorios");
+                    return View(login);
+                }
+
                 string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: login.Clave,
+                    password: login.Clave!, 
                     salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
                     prf: KeyDerivationPrf.HMACSHA1,
                     iterationCount: 1000,
