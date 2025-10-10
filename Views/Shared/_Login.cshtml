@@ -1,25 +1,40 @@
 @model InmobiliariaAppAguileraBecerra.Models.LoginView
 
-<h4>Acceso</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-controller="Usuarios" asp-action="Login">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Usuario" class="control-label"></label>
-                <input asp-for="Usuario" class="form-control" />
-                <span asp-validation-for="Usuario" class="text-danger"></span>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-lock-fill"></i> Acceso</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Usuarios" asp-action="Login">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Usuario" class="form-label"></label>
+                            <input asp-for="Usuario" class="form-control" />
+                            <span asp-validation-for="Usuario" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Clave" class="form-label"></label>
+                            <input asp-for="Clave" class="form-control" type="password" />
+                            <span asp-validation-for="Clave" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Entrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-muted text-center">
+                    <small>Ingrese sus credenciales para acceder al sistema</small>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Clave" class="control-label"></label>
-                <input asp-for="Clave" class="form-control" />
-                <span asp-validation-for="Clave" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Entrar" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 

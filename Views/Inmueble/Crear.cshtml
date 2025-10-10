@@ -2,35 +2,38 @@
 @using InmobiliariaAppAguileraBecerra.Models
 
 @{
-    ViewData["Title"] = "Crear";
+    ViewData["Title"] = "Crear Inmueble";
     var ltaPropietarios = (IList<Propietario>?)ViewData["Propietarios"] ?? new List<Propietario>();
     var tiposInmueble = Inmueble.ObtenerTipos();
 }
 
-<h1>Crear Inmueble</h1>
+<h1 class="mb-4 text-primary">
+    <i class="bi bi-house-door-fill"></i> @ViewData["Title"]
+</h1>
 
 <h4>Inmueble</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Crear" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group">
-                <label asp-for="Direccion" class="control-label"></label>
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Crear" method="post" class="shadow-sm p-4 rounded bg-light">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Direccion" class="form-label"></label>
                 <input asp-for="Direccion" class="form-control" />
                 <span asp-validation-for="Direccion" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Uso" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Uso" class="form-label"></label>
                 <input asp-for="Uso" class="form-control" />
                 <span asp-validation-for="Uso" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Tipo" class="control-label"></label>
-                <select asp-for="Tipo" class="form-control">
+            <div class="mb-3">
+                <label asp-for="Tipo" class="form-label"></label>
+                <select asp-for="Tipo" class="form-select">
                     <option value="">-- Seleccione un tipo --</option>
                     @foreach (var tipo in tiposInmueble)
                     {
@@ -40,33 +43,33 @@
                 <span asp-validation-for="Tipo" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Ambientes" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Ambientes" class="form-label"></label>
                 <input asp-for="Ambientes" class="form-control" />
                 <span asp-validation-for="Ambientes" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Latitud" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Latitud" class="form-label"></label>
                 <input asp-for="Latitud" class="form-control" />
                 <span asp-validation-for="Latitud" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Longitud" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Longitud" class="form-label"></label>
                 <input asp-for="Longitud" class="form-control" />
                 <span asp-validation-for="Longitud" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Precio" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Precio" class="form-label"></label>
                 <input asp-for="Precio" class="form-control" />
                 <span asp-validation-for="Precio" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label class="control-label">Propietario</label>
-                <select class="form-control" name="PropietarioId">
+            <div class="mb-3">
+                <label class="form-label">Propietario</label>
+                <select class="form-select" name="PropietarioId">
                     <option value="">-- Seleccione un propietario --</option>
                     @foreach (var item in ltaPropietarios)
                     {
@@ -76,7 +79,7 @@
                 <span asp-validation-for="PropietarioId" class="text-danger"></span>
             </div>
 
-            <div class="form-group mt-3">
+            <div class="mt-4">
                 <input type="submit" value="Crear" class="btn btn-primary" />
                 <a class="btn btn-secondary" asp-action="Lista">Volver</a>
             </div>

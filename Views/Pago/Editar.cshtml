@@ -3,40 +3,65 @@
     ViewData["Title"] = "Editar Pago";
 }
 
-<h2>Editar Pago #@Model.Id</h2>
-
-<form asp-action="Editar" method="post">
-    <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="ContratoId" />
-
-    <div class="form-group">
-        <label asp-for="Numero"></label>
-        <input asp-for="Numero" class="form-control" readonly />
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">
+            <i class="bi bi-pencil-square"></i> Editar Pago #@Model.Id
+        </h2>
+        <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Fecha"></label>
-        <input asp-for="Fecha" class="form-control" readonly />
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form asp-action="Editar" method="post">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ContratoId" />
+
+                <div class="mb-3">
+                    <label asp-for="Numero" class="form-label fw-semibold"></label>
+                    <input asp-for="Numero" class="form-control" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Fecha" class="form-label fw-semibold"></label>
+                    <input asp-for="Fecha" type="date" class="form-control" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Importe" class="form-label fw-semibold"></label>
+                    <input asp-for="Importe" class="form-control" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Detalle" class="form-label fw-semibold"></label>
+                    <input asp-for="Detalle" class="form-control" />
+                    <span asp-validation-for="Detalle" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="Anulado" class="form-check-input" />
+                    <label asp-for="Anulado" class="form-check-label fw-semibold"></label>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save2"></i> Guardar Cambios
+                    </button>
+                    <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Importe"></label>
-        <input asp-for="Importe" class="form-control" readonly />
+    <div class="mt-3 text-end text-muted">
+        Última modificación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Detalle"></label>
-        <input asp-for="Detalle" class="form-control" />
-        <span asp-validation-for="Detalle" class="text-danger"></span>
-    </div>
-
-    <div class="form-check">
-        <input asp-for="Anulado" class="form-check-input" />
-        <label asp-for="Anulado" class="form-check-label"></label>
-    </div>
-
-    <div class="form-group mt-3">
-        <input type="submit" value="Guardar" class="btn btn-primary" />
-        <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">Cancelar</a>
-    </div>
-</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

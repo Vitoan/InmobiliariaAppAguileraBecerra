@@ -4,37 +4,66 @@
     var contrato = ViewBag.Contrato;
 }
 
-<h2>Registrar Pago para Contrato #@contrato?.Id</h2>
-
-<form asp-action="Crear" method="post">
-    <input type="hidden" asp-for="ContratoId" value="@contrato?.Id" />
-
-    <div class="form-group">
-        <label asp-for="Numero"></label>
-        <input asp-for="Numero" class="form-control" />
-        <span asp-validation-for="Numero" class="text-danger"></span>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">
+            <i class="bi bi-cash-stack"></i> Registrar Pago
+        </h2>
+        <a asp-action="Index" asp-route-contratoId="@contrato?.Id" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Fecha"></label>
-        <input asp-for="Fecha" type="date" class="form-control" />
-        <span asp-validation-for="Fecha" class="text-danger"></span>
+    <div class="mb-4">
+        <h5>Contrato #@contrato?.Id</h5>
+        <p>Inquilino: @contrato?.Inquilino?.Nombre @contrato?.Inquilino?.Apellido</p>
+        <p>Inmueble: @contrato?.Inmueble?.Direccion</p>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Importe"></label>
-        <input asp-for="Importe" class="form-control" />
-        <span asp-validation-for="Importe" class="text-danger"></span>
-    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form asp-action="Crear" method="post">
+                <input type="hidden" asp-for="ContratoId" value="@contrato?.Id" />
 
-    <div class="form-group">
-        <label asp-for="Detalle"></label>
-        <input asp-for="Detalle" class="form-control" />
-        <span asp-validation-for="Detalle" class="text-danger"></span>
-    </div>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-    <div class="form-group mt-3">
-        <input type="submit" value="Guardar" class="btn btn-primary" />
-        <a asp-action="Index" asp-route-contratoId="@contrato?.Id" class="btn btn-secondary">Cancelar</a>
+                <div class="mb-3">
+                    <label asp-for="Numero" class="form-label fw-semibold"></label>
+                    <input asp-for="Numero" class="form-control" placeholder="Número de pago" />
+                    <span asp-validation-for="Numero" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Fecha" class="form-label fw-semibold"></label>
+                    <input asp-for="Fecha" type="date" class="form-control" />
+                    <span asp-validation-for="Fecha" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Importe" class="form-label fw-semibold"></label>
+                    <input asp-for="Importe" class="form-control" placeholder="Ej: 50000.00" />
+                    <span asp-validation-for="Importe" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Detalle" class="form-label fw-semibold"></label>
+                    <input asp-for="Detalle" class="form-control" placeholder="Detalle del pago" />
+                    <span asp-validation-for="Detalle" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a asp-action="Index" asp-route-contratoId="@contrato?.Id" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save2"></i> Guardar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

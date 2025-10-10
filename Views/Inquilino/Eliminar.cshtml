@@ -4,71 +4,67 @@
     ViewData["Title"] = "Eliminar Inquilino";
 }
 
-<h2>Eliminar Inquilino</h2>
-
-<p class="text-warning">Atención: no se podrá eliminar si tiene contratos asociados.</p>
-
-<h3>¿Estás seguro de que quieres eliminar este inquilino?</h3>
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-danger">
+            <i class="bi bi-trash"></i> @ViewData["Title"]
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
     </div>
-}
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
+
+    <div class="alert alert-warning">
+        Atención: no se podrá eliminar si tiene contratos asociados.
     </div>
-}
 
-<div>
-    <h4>Inquilino</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Apellido)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Apellido)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DNI)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DNI)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Telefono)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Telefono)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-    </dl>
-    
-    <form asp-action="Eliminar" method="post">
-    <input type="hidden" asp-for="Id" />
-    <input type="submit" value="Eliminar" class="btn btn-danger" />
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
-</form>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
 
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h4 class="card-title mb-3"><i class="bi bi-person-lines-fill"></i> Información del Inquilino</h4>
+            <dl class="row">
+                <dt class="col-sm-3">ID:</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
+
+                <dt class="col-sm-3">Nombre:</dt>
+                <dd class="col-sm-9">@Model.Nombre</dd>
+
+                <dt class="col-sm-3">Apellido:</dt>
+                <dd class="col-sm-9">@Model.Apellido</dd>
+
+                <dt class="col-sm-3">DNI:</dt>
+                <dd class="col-sm-9">@Model.DNI</dd>
+
+                <dt class="col-sm-3">Teléfono:</dt>
+                <dd class="col-sm-9">@Model.Telefono</dd>
+
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+            </dl>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Volver
+                </a>
+                <form asp-action="Eliminar" method="post" class="m-0">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

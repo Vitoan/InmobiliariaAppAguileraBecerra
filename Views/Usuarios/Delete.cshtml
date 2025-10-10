@@ -4,60 +4,73 @@
     ViewData["Title"] = "Eliminar Usuario";
 }
 
-<h2 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> @ViewData["Title"]</h2>
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-exclamation-triangle-fill"></i> Eliminar Usuario
+            </h4>
+        </div>
 
-<p class="text-warning">Atención: al eliminar un usuario, se perderán todos los datos asociados.</p>
+        <div class="card-body">
+            <p class="text-warning">Atención: al eliminar un usuario, se perderán todos los datos asociados.</p>
+            <h5>¿Estás seguro de que quieres eliminar este usuario?</h5>
 
-<h4>¿Estás seguro de que quieres eliminar este usuario?</h4>
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
-}
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
-
-<div class="mt-3">
-    <h4>Usuario</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Id)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Id)</dd>
-
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Nombre)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Nombre)</dd>
-
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Apellido)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Apellido)</dd>
-
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Email)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Email)</dd>
-
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.RolNombre)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.RolNombre)</dd>
-
-        <dt class="col-sm-2">Avatar</dt>
-        <dd class="col-sm-10">
-            @if(!String.IsNullOrEmpty(Model.Avatar))
+            @if (TempData["Error"] != null)
             {
-                <img width="64" class="rounded-circle" src="@Model.Avatar" />
+                <div class="alert alert-danger mt-3">
+                    @TempData["Error"]
+                </div>
             }
-            else
+            @if (TempData["Success"] != null)
             {
-                <img width="64" class="rounded-circle" src="https://ui-avatars.com/api/?rounded=true&name=@Model.Nombre+@Model.Apellido" />
+                <div class="alert alert-success mt-3">
+                    @TempData["Success"]
+                </div>
             }
-        </dd>
-    </dl>
 
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
-    </form>
+            <hr />
+
+            <dl class="row mb-4">
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Id)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Id)</dd>
+
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Nombre)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Nombre)</dd>
+
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Apellido)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Apellido)</dd>
+
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Email)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Email)</dd>
+
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.RolNombre)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.RolNombre)</dd>
+
+                <dt class="col-sm-2">Avatar</dt>
+                <dd class="col-sm-10">
+                    @if(!String.IsNullOrEmpty(Model.Avatar))
+                    {
+                        <img width="64" class="rounded-circle" src="@Model.Avatar" />
+                    }
+                    else
+                    {
+                        <img width="64" class="rounded-circle" src="https://ui-avatars.com/api/?rounded=true&name=@Model.Nombre+@Model.Apellido" />
+                    }
+                </dd>
+            </dl>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

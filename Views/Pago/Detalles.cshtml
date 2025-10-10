@@ -3,27 +3,58 @@
     ViewData["Title"] = "Detalles del Pago";
 }
 
-<h2>Detalles del Pago #@Model.Id</h2>
-<hr />
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">
+            <i class="bi bi-cash-stack"></i> Detalles del Pago #@Model.Id
+        </h2>
+        <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
+    </div>
 
-<dl class="row">
-    <dt class="col-sm-2">Número</dt>
-    <dd class="col-sm-10">@Model.Numero</dd>
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3 fw-semibold">Número:</dt>
+                <dd class="col-sm-9">@Model.Numero</dd>
 
-    <dt class="col-sm-2">Fecha</dt>
-    <dd class="col-sm-10">@Model.Fecha.ToShortDateString()</dd>
+                <dt class="col-sm-3 fw-semibold">Fecha:</dt>
+                <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
 
-    <dt class="col-sm-2">Importe</dt>
-    <dd class="col-sm-10">$ @Model.Importe</dd>
+                <dt class="col-sm-3 fw-semibold">Importe:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-success">$@Model.Importe.ToString("N2")</span>
+                </dd>
 
-    <dt class="col-sm-2">Detalle</dt>
-    <dd class="col-sm-10">@Model.Detalle</dd>
+                <dt class="col-sm-3 fw-semibold">Detalle:</dt>
+                <dd class="col-sm-9">@Model.Detalle</dd>
 
-    <dt class="col-sm-2">Estado</dt>
-    <dd class="col-sm-10">@(Model.Anulado ? "Anulado" : "Activo")</dd>
-</dl>
+                <dt class="col-sm-3 fw-semibold">Estado:</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Anulado)
+                    {
+                        <span class="badge bg-danger">Anulado</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-primary">Activo</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
 
-<div>
-    <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
-    <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">Volver</a>
+    <div class="mt-4 d-flex gap-2">
+        <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil-square"></i> Editar
+        </a>
+        <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
+    </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

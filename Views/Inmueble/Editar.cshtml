@@ -7,30 +7,32 @@
     var tiposInmueble = Inmueble.ObtenerTipos();
 }
 
-<h1 class="mb-4 text-primary">Editar Inmueble</h1>
+<h1 class="mb-4 text-primary">
+    <i class="bi bi-house-door-fill"></i> @ViewData["Title"]
+</h1>
 <hr />
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Editar" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form asp-action="Editar" method="post" enctype="multipart/form-data" class="shadow-sm p-4 rounded bg-light">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <input type="hidden" asp-for="Id" />
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="Direccion" class="form-label"></label>
                 <input asp-for="Direccion" class="form-control" />
                 <span asp-validation-for="Direccion" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="Uso" class="form-label"></label>
                 <input asp-for="Uso" class="form-control" />
                 <span asp-validation-for="Uso" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="Tipo" class="form-label"></label>
-                <select asp-for="Tipo" class="form-control">
+                <select asp-for="Tipo" class="form-select">
                     <option value="">-- Seleccione un tipo --</option>
                     @foreach (var tipo in tiposInmueble)
                     {
@@ -42,25 +44,25 @@
                 <span asp-validation-for="Tipo" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="Ambientes" class="form-label"></label>
                 <input asp-for="Ambientes" type="number" class="form-control" />
                 <span asp-validation-for="Ambientes" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="Latitud" class="form-label"></label>
                 <input asp-for="Latitud" type="number" step="any" class="form-control" />
                 <span asp-validation-for="Latitud" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="Longitud" class="form-label"></label>
                 <input asp-for="Longitud" type="number" step="any" class="form-control" />
                 <span asp-validation-for="Longitud" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="Precio" class="form-label"></label>
                 <input asp-for="Precio" type="number" step="0.01" class="form-control" />
                 <span asp-validation-for="Precio" class="text-danger"></span>
@@ -76,9 +78,9 @@
                 <label asp-for="Habilitado" class="form-check-label"></label>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label class="form-label">Propietario</label>
-                <select asp-for="PropietarioId" class="form-control">
+                <select asp-for="PropietarioId" class="form-select">
                     <option value="">-- Seleccione un propietario --</option>
                     @foreach (var item in Propietarios)
                     {
