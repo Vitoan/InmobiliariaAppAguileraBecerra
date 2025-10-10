@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-10-2025 a las 00:27:41
+-- Tiempo de generación: 10-10-2025 a las 20:52:03
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -241,7 +241,7 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`Id`, `Nombre`, `Apellido`, `Email`, `Clave`, `Rol`, `Avatar`) VALUES
 (1, 'Admin', 'Principal', 'admin@inmobiliaria.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, '/Uploads/avatar_1.jpeg'),
-(2, 'Martin', 'Becerra', 'martinbecerrasl7@gmail.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, NULL),
+(2, 'Martin', 'Becerra', 'martinbecerrasl7@gmail.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, '/Uploads/avatar_2.jpg'),
 (4, 'Carolina', 'Luzza', 'caroluzza@gmail.com', 'BUQ/D7x0miEOtqY8hDcD1uFHeW+GvdaNwlWuSCoHi6s=', 2, NULL);
 
 --
