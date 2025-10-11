@@ -20,7 +20,7 @@ Permite administrar **inquilinos, propietarios, inmuebles, contratos y pagos**, 
 
 | Tipo | Tecnología |
 |------|-------------|
-| Lenguaje | C# (.NET 8 LTSC |
+| Lenguaje | C# (.NET 8 LTSC ) |
 | Framework | ASP.NET Core MVC |
 | Base de datos | MySQL |
 | Frontend | HTML5, CSS3, Bootstrap 5 |
