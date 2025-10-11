@@ -108,19 +108,6 @@ O desde Visual Studio:
 http://localhost:5000/
 ```
 
----
-
-## 🎨 Capturas sugeridas
-
-Puedes agregar imágenes dentro de `wwwroot/img/` y referenciarlas aquí:
-
-```markdown
-![Pantalla principal](wwwroot/img/home.png)
-![Detalles del contrato](wwwroot/img/detalle-contrato.png)
-![Finalización anticipada](wwwroot/img/finalizacion.png)
-```
-
----
 
 ## 👤 Autores
 
