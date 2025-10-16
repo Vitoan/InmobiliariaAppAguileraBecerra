@@ -39,8 +39,16 @@ namespace InmobiliariaAppAguileraBecerra.Models
             List<Contrato> lista = new List<Contrato>();
             using (var connection = GetConnection())
             {
-                string sql = @"SELECT Id, FechaInicio, FechaFin, Monto, FechaFinAnticipada, Multa, Vigente, InquilinoId, InmuebleId 
-                               FROM contrato;";
+                string sql = @"
+SELECT c.Id, c.FechaInicio, c.FechaFin, c.Monto, 
+       c.InquilinoId, c.InmuebleId,
+       i.Apellido AS InquilinoApellido,
+       i.Nombre AS InquilinoNombre,
+       inm.Direccion AS InmuebleDireccion
+FROM contrato c
+INNER JOIN inquilino i ON c.InquilinoId = i.Id
+INNER JOIN inmueble inm ON c.InmuebleId = inm.Id;
+";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
@@ -49,16 +57,20 @@ namespace InmobiliariaAppAguileraBecerra.Models
                     {
                         var c = new Contrato
                         {
-                            Id = reader.GetInt32(nameof(Contrato.Id)),
-                            FechaInicio = reader.GetDateTime(nameof(Contrato.FechaInicio)),
-                            FechaFin = reader.GetDateTime(nameof(Contrato.FechaFin)),
-                            Monto = reader.GetDecimal(nameof(Contrato.Monto)),
-                            FechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.FechaFinAnticipada))) ? null : reader.GetDateTime(nameof(Contrato.FechaFinAnticipada)),
-                            Multa = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.Multa))) ? null : reader.GetDecimal(nameof(Contrato.Multa)),
-                            Vigente = reader.GetBoolean(nameof(Contrato.Vigente)),
-                            InquilinoId = reader.GetInt32(nameof(Contrato.InquilinoId)),
-                            InmuebleId = reader.GetInt32(nameof(Contrato.InmuebleId))
+                            Id = reader.GetInt32("Id"),
+                            FechaInicio = reader.GetDateTime("FechaInicio"),
+                            FechaFin = reader.GetDateTime("FechaFin"),
+                            Monto = reader.GetDecimal("Monto"),
+                            InquilinoId = reader.GetInt32("InquilinoId"),
+                            InmuebleId = reader.GetInt32("InmuebleId"),
+                            Inquilino = new Inquilino
+                            {
+                                Nombre = reader.GetString("InquilinoNombre"), // Ahora se asigna a Nombre
+                                Apellido = reader.GetString("InquilinoApellido") // Agregamos la asignación de Apellido
+                            },
+                            Inmueble = new Inmueble { Direccion = reader.GetString("InmuebleDireccion") }
                         };
+
                         lista.Add(c);
                     }
                     connection.Close();
@@ -71,10 +83,18 @@ namespace InmobiliariaAppAguileraBecerra.Models
         public Contrato ObtenerPorId(int id)
         {
             Contrato c = null;
-            using (var connection = GetConnection())
+            using (var connection = GetConnection()
+            )
             {
-                string sql = @"SELECT Id, FechaInicio, FechaFin, Monto, FechaFinAnticipada, Multa, Vigente, InquilinoId, InmuebleId 
-                               FROM contrato WHERE Id=@id;";
+                string sql = @"
+SELECT c.*,
+       i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido,
+       inm.Direccion AS InmuebleDireccion
+FROM contrato c
+INNER JOIN inquilino i ON c.InquilinoId = i.Id
+INNER JOIN inmueble inm ON c.InmuebleId = inm.Id
+WHERE c.Id = @id;
+"; // Consulta con JOIN para traer Inquilino e Inmueble
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -92,7 +112,15 @@ namespace InmobiliariaAppAguileraBecerra.Models
                             Multa = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.Multa))) ? null : reader.GetDecimal(nameof(Contrato.Multa)),
                             Vigente = reader.GetBoolean(nameof(Contrato.Vigente)),
                             InquilinoId = reader.GetInt32(nameof(Contrato.InquilinoId)),
-                            InmuebleId = reader.GetInt32(nameof(Contrato.InmuebleId))
+                            InmuebleId = reader.GetInt32(nameof(Contrato.InmuebleId)),
+                            // **NUEVO: Llenar los objetos Inquilino e Inmueble**
+                            Inquilino = new Inquilino { 
+                                Nombre = reader.GetString("InquilinoNombre"), 
+                                Apellido = reader.GetString("InquilinoApellido") 
+                            },
+                            Inmueble = new Inmueble { 
+                                Direccion = reader.GetString("InmuebleDireccion") 
+                            }
                         };
                     }
                     connection.Close();
@@ -147,14 +175,14 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return res;
         }
-// ❓ Verificar superposición (nuevo método)
+        // ❓ Verificar superposición (nuevo método)
 
         public bool ExisteSuperposicion(Contrato c)
-{
-    bool existe = false;
-    using (var connection = GetConnection())
-    {
-        string sql = @"
+        {
+            bool existe = false;
+            using (var connection = GetConnection())
+            {
+                string sql = @"
             SELECT COUNT(*) 
             FROM contrato
             WHERE InmuebleId = @InmuebleId
@@ -164,19 +192,19 @@ namespace InmobiliariaAppAguileraBecerra.Models
                     (FechaInicio < @FechaFin AND FechaFin > @FechaInicio)
                   );
         ";
-        using (var command = new MySqlCommand(sql, connection))
-        {
-            command.Parameters.AddWithValue("@InmuebleId", c.InmuebleId);
-            command.Parameters.AddWithValue("@Id", c.Id); // si es nuevo, Id = 0
-            command.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
-            command.Parameters.AddWithValue("@FechaFin", c.FechaFin);
-            connection.Open();
-            int count = Convert.ToInt32(command.ExecuteScalar() ?? 0);
-            existe = count > 0;
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@InmuebleId", c.InmuebleId);
+                    command.Parameters.AddWithValue("@Id", c.Id); // si es nuevo, Id = 0
+                    command.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
+                    command.Parameters.AddWithValue("@FechaFin", c.FechaFin);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar() ?? 0);
+                    existe = count > 0;
+                }
+            }
+            return existe;
         }
-    }
-    return existe;
-}
 
 
         // 🔴 Finalizar anticipadamente (nuevo método)
