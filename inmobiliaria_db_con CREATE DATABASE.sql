@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-10-2025 a las 00:37:48
+-- Tiempo de generación: 16-10-2025 a las 19:15:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -63,7 +63,8 @@ CREATE TABLE `contrato` (
 --
 
 INSERT INTO `contrato` (`Id`, `FechaInicio`, `FechaFin`, `Monto`, `FechaFinAnticipada`, `Multa`, `Vigente`, `InquilinoId`, `InmuebleId`) VALUES
-(1, '2025-09-23', '2025-10-23', 200000.00, NULL, NULL, 1, 1, 1);
+(1, '2025-09-23', '2025-10-23', 200000.00, '2025-10-12', 200000.00, 0, 1, 1),
+(2, '2025-10-16', '2026-01-16', 500000.00, NULL, NULL, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -148,7 +149,9 @@ CREATE TABLE `pago` (
   `Contrato_Id` int(11) NOT NULL,
   `FechaPago` date NOT NULL,
   `Importe` decimal(10,2) NOT NULL,
-  `NumeroPago` int(11) NOT NULL
+  `NumeroPago` int(11) NOT NULL,
+  `Detalle` varchar(255) DEFAULT NULL,
+  `Anulado` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -277,7 +280,7 @@ ALTER TABLE `auditoria`
 -- AUTO_INCREMENT de la tabla `contrato`
 --
 ALTER TABLE `contrato`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `imagen`

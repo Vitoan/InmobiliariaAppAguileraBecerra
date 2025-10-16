@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-10-2025 a las 20:52:03
+-- Tiempo de generación: 16-10-2025 a las 19:15:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `inmobiliaria_db`
 --
+CREATE DATABASE IF NOT EXISTS `inmobiliaria_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `inmobiliaria_db`;
 
 -- --------------------------------------------------------
 
@@ -37,24 +39,6 @@ CREATE TABLE `auditoria` (
   `DatosNuevos` text DEFAULT NULL,
   `Usuario` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `auditoria`
---
-
-INSERT INTO `auditoria` (`Id`, `Tabla`, `Operacion`, `RegistroId`, `Fecha`, `DatosAnteriores`, `DatosNuevos`, `Usuario`) VALUES
-(1, 'Contrato', 'Alta', 2, '2025-10-09 14:41:43', NULL, '{\"Id\":2,\"FechaInicio\":\"2025-10-01T00:00:00\",\"FechaFin\":\"2025-10-31T00:00:00\",\"Monto\":200000,\"InquilinoId\":2,\"InmuebleId\":5,\"Vigente\":true}', 'admin@inmobiliaria.com'),
-(2, 'Pago', 'Alta', 4, '2025-10-09 15:33:07', NULL, '{\"Id\":4,\"Numero\":1,\"Fecha\":\"2025-10-09T00:00:00\",\"Importe\":200000,\"Detalle\":\"Pago del mes de Octubre\",\"Anulado\":false,\"ContratoId\":1}', 'admin@inmobiliaria.com'),
-(3, 'Pago', 'Anulación', 4, '2025-10-09 15:34:29', '{\"Id\":4,\"Numero\":1,\"Fecha\":\"2025-10-09T00:00:00\",\"Importe\":200000.00,\"Detalle\":\"Pago del mes de Octubre\",\"Anulado\":false}', '{\"Id\":4,\"Numero\":1,\"Fecha\":\"2025-10-09T00:00:00\",\"Importe\":200000.00,\"Detalle\":\"Pago del mes de Octubre\",\"Anulado\":true}', 'admin@inmobiliaria.com'),
-(4, 'Contrato', 'Terminación', 2, '2025-10-09 18:15:38', '{\"Id\":2,\"FechaInicio\":\"2025-10-01T00:00:00\",\"FechaFin\":\"2025-10-31T00:00:00\",\"Monto\":200000.00,\"InquilinoId\":2,\"InmuebleId\":5,\"Vigente\":true,\"Multa\":null,\"FechaFinAnticipada\":null}', '{\"Id\":2,\"FechaInicio\":\"2025-10-01T00:00:00\",\"FechaFin\":\"2025-10-31T00:00:00\",\"Monto\":200000.00,\"InquilinoId\":2,\"InmuebleId\":5,\"Vigente\":false,\"Multa\":3000000,\"FechaFinAnticipada\":\"2025-10-09T00:00:00\"}', 'admin@inmobiliaria.com'),
-(5, 'Contrato', 'Alta', 3, '2025-10-09 18:19:01', NULL, '{\"Id\":3,\"FechaInicio\":\"2025-10-07T00:00:00\",\"FechaFin\":\"2025-10-08T00:00:00\",\"Monto\":200000,\"InquilinoId\":1,\"InmuebleId\":3,\"Vigente\":true}', 'admin@inmobiliaria.com'),
-(6, 'Contrato', 'Terminación', 3, '2025-10-09 18:19:27', '{\"Id\":3,\"FechaInicio\":\"2025-10-07T00:00:00\",\"FechaFin\":\"2025-10-08T00:00:00\",\"Monto\":200000.00,\"InquilinoId\":1,\"InmuebleId\":3,\"Vigente\":true,\"Multa\":null,\"FechaFinAnticipada\":null}', '{\"Id\":3,\"FechaInicio\":\"2025-10-07T00:00:00\",\"FechaFin\":\"2025-10-08T00:00:00\",\"Monto\":200000.00,\"InquilinoId\":1,\"InmuebleId\":3,\"Vigente\":false,\"Multa\":0,\"FechaFinAnticipada\":\"2025-10-08T00:00:00\"}', 'admin@inmobiliaria.com'),
-(7, 'Pago', 'Alta', 5, '2025-10-09 18:21:08', NULL, '{\"Id\":5,\"Numero\":1,\"Fecha\":\"2025-10-09T00:00:00\",\"Importe\":200000,\"Detalle\":\"Pago Unico\",\"Anulado\":false,\"ContratoId\":3}', 'admin@inmobiliaria.com'),
-(8, 'Contrato', 'Alta', 4, '2025-10-09 18:45:40', NULL, '{\"Id\":4,\"FechaInicio\":\"2025-10-09T00:00:00\",\"FechaFin\":\"2025-10-31T00:00:00\",\"Monto\":200000,\"InquilinoId\":2,\"InmuebleId\":3,\"Vigente\":true}', 'admin@inmobiliaria.com'),
-(9, 'Contrato', 'Alta', 5, '2025-10-09 19:02:14', NULL, '{\"Id\":5,\"FechaInicio\":\"2025-10-09T00:00:00\",\"FechaFin\":\"2025-10-31T00:00:00\",\"Monto\":200000,\"InquilinoId\":2,\"InmuebleId\":3,\"Vigente\":true}', 'admin@inmobiliaria.com'),
-(10, 'Contrato', 'Alta', 6, '2025-10-09 19:05:36', NULL, '{\"Id\":6,\"FechaInicio\":\"2025-11-01T00:00:00\",\"FechaFin\":\"2026-11-01T00:00:00\",\"Monto\":200000,\"InquilinoId\":2,\"InmuebleId\":5,\"Vigente\":true}', 'admin@inmobiliaria.com'),
-(11, 'Contrato', 'Alta', 7, '2025-10-09 19:10:58', NULL, '{\"Id\":7,\"FechaInicio\":\"2025-10-09T00:00:00\",\"FechaFin\":\"2025-10-10T00:00:00\",\"Monto\":200000,\"InquilinoId\":1,\"InmuebleId\":6,\"Vigente\":true}', 'admin@inmobiliaria.com'),
-(12, 'Contrato', 'Terminación', 7, '2025-10-09 19:11:29', '{\"Id\":7,\"FechaInicio\":\"2025-10-09T00:00:00\",\"FechaFin\":\"2025-10-10T00:00:00\",\"Monto\":200000.00,\"InquilinoId\":1,\"InmuebleId\":6,\"Vigente\":true,\"Multa\":null,\"FechaFinAnticipada\":null}', '{\"Id\":7,\"FechaInicio\":\"2025-10-09T00:00:00\",\"FechaFin\":\"2025-10-10T00:00:00\",\"Monto\":200000.00,\"InquilinoId\":1,\"InmuebleId\":6,\"Vigente\":false,\"Multa\":3000000,\"FechaFinAnticipada\":\"2025-10-09T00:00:00\"}', 'admin@inmobiliaria.com');
 
 -- --------------------------------------------------------
 
@@ -79,12 +63,8 @@ CREATE TABLE `contrato` (
 --
 
 INSERT INTO `contrato` (`Id`, `FechaInicio`, `FechaFin`, `Monto`, `FechaFinAnticipada`, `Multa`, `Vigente`, `InquilinoId`, `InmuebleId`) VALUES
-(1, '2025-09-23', '2025-10-23', 200000.00, NULL, NULL, 1, 1, 1),
-(2, '2025-10-01', '2025-10-31', 200000.00, NULL, NULL, 0, 2, 5),
-(3, '2025-10-07', '2025-10-08', 200000.00, NULL, NULL, 0, 1, 3),
-(4, '2025-10-09', '2025-10-31', 200000.00, NULL, NULL, 1, 2, 3),
-(6, '2025-11-01', '2026-11-01', 200000.00, NULL, NULL, 1, 2, 5),
-(7, '2025-10-09', '2025-10-10', 200000.00, NULL, NULL, 0, 1, 6);
+(1, '2025-09-23', '2025-10-23', 200000.00, '2025-10-12', 200000.00, 0, 1, 1),
+(2, '2025-10-16', '2026-01-16', 500000.00, NULL, NULL, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -103,9 +83,9 @@ CREATE TABLE `imagen` (
 --
 
 INSERT INTO `imagen` (`Id`, `InmuebleId`, `Url`) VALUES
+(1, 1, '/uploads/inmuebles/1/a00b941c-a569-4734-ad3d-f10377c69abc.jpg'),
 (2, 1, '/uploads/inmuebles/1/c91e4cea-9d2f-440c-b8c6-bad01002c29b.jpg'),
-(3, 1, '/uploads/inmuebles/1/ef2465eb-a68f-4430-8aed-1c4156af9b56.jpg'),
-(6, 3, '/uploads/inmuebles/3/32e78c31-4384-4f48-9743-7ec1e3d72ccc.jpg');
+(3, 1, '/uploads/inmuebles/1/ef2465eb-a68f-4430-8aed-1c4156af9b56.jpg');
 
 -- --------------------------------------------------------
 
@@ -133,18 +113,8 @@ CREATE TABLE `inmueble` (
 --
 
 INSERT INTO `inmueble` (`Id`, `Direccion`, `Uso`, `Tipo`, `Ambientes`, `Latitud`, `Longitud`, `Precio`, `Disponible`, `PropietarioId`, `Habilitado`, `Portada`) VALUES
-(1, 'Barrio 544 Viviendas, Manzana P,  Casa 32', 'Residencial', 1, 7, -33.00000000, -66.00000000, 1300000.00, 0, 4, 1, '/Uploads/Inmuebles/portada_1.jpg'),
-(3, 'Barrio 544 Viviendas, Manzana P,  Casa 31', 'Residencial', 1, 6, -34.00000000, -66.00000000, 2000000.00, 0, 1, 1, '/Uploads/Inmuebles/portada_3.jpg'),
-(5, 'Rivadavia 1100, San Luis', 'Residencial', 2, 4, -48.00000000, -125.00000000, 2000000.00, 0, 4, 1, NULL),
-(6, 'Cordoba 1138, Jesus Maria', 'Residencial', 2, 3, -99.99999999, -133.00000000, 10000000.00, 1, 7, 1, NULL),
-(7, 'Cordoba 1135, Jesus Maria', 'Comercial', 3, 1, -99.99999999, -131.00000000, 50000000.00, 1, 7, 1, NULL),
-(8, 'Cordoba 1100, Jesus Maria', 'Comercial', 3, 1, -99.99999999, -131.00000000, 50000000.00, 1, 5, 1, NULL),
-(9, 'Rivadavia 120, San Luis', 'Residencial', 2, 4, -99.99999999, -156.00000000, 5000000.00, 1, 5, 1, NULL),
-(10, 'Barrio 544 Viviendas, Manzana P,  Casa 29', 'Residencial', 1, 6, -99.99999999, -133.00000000, 50000000.00, 1, 4, 1, NULL),
-(11, 'Manuel Astrada 10, Merlo', 'Residencial', 2, 3, 99.99999999, -100.00000000, 10000000.00, 1, 5, 1, NULL),
-(12, 'Barrio 544 Viviendas, Manzana P,  Casa 10', 'Residencial', 1, 11, 99.99999999, 200.00000000, 50000000.00, 1, 4, 1, NULL),
-(13, 'Cordoba 1, Jesus Maria', 'Comercial', 1, 4, -99.99999999, -156.00000000, 5000000.00, 1, 7, 1, NULL),
-(14, 'Maipu 110, San Luis', 'Residencial', 1, 5, -99.99999999, 200.00000000, 5000000.00, 1, 1, 1, NULL);
+(1, 'Barrio 544 Viviendas, Manzana P,  Casa 32', '', 1, 7, -99.99999999, -999.99999999, 0.00, 1, 4, 1, '/Uploads/Inmuebles/portada_1.jpg'),
+(3, 'Barrio 544 Viviendas, Manzana P,  Casa 31', 'Residencial', 1, 6, -99.99999999, -999.99999999, 2000000.00, 1, 1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -166,8 +136,7 @@ CREATE TABLE `inquilino` (
 --
 
 INSERT INTO `inquilino` (`Id`, `Nombre`, `Apellido`, `DNI`, `Telefono`, `Email`) VALUES
-(1, 'Santiago', 'Becerra', '46072720', '26640164897', 'santi_bece_04@gmail.com'),
-(2, 'Luca', 'Alonso', '34343434', '2664334455', 'luca@gmail.com');
+(1, 'Santiago', 'Becerra', '46072720', '26640164897', 'santi_bece_04@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -181,17 +150,9 @@ CREATE TABLE `pago` (
   `FechaPago` date NOT NULL,
   `Importe` decimal(10,2) NOT NULL,
   `NumeroPago` int(11) NOT NULL,
-  `Detalle` varchar(100) NOT NULL DEFAULT '',
+  `Detalle` varchar(255) DEFAULT NULL,
   `Anulado` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `pago`
---
-
-INSERT INTO `pago` (`Id`, `Contrato_Id`, `FechaPago`, `Importe`, `NumeroPago`, `Detalle`, `Anulado`) VALUES
-(4, 1, '2025-10-09', 200000.00, 1, 'Pago del mes de Octubre', 1),
-(5, 3, '2025-10-09', 200000.00, 1, 'Pago Unico', 0);
 
 -- --------------------------------------------------------
 
@@ -241,8 +202,9 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`Id`, `Nombre`, `Apellido`, `Email`, `Clave`, `Rol`, `Avatar`) VALUES
 (1, 'Admin', 'Principal', 'admin@inmobiliaria.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, '/Uploads/avatar_1.jpeg'),
-(2, 'Martin', 'Becerra', 'martinbecerrasl7@gmail.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, '/Uploads/avatar_2.jpg'),
-(4, 'Carolina', 'Luzza', 'caroluzza@gmail.com', 'BUQ/D7x0miEOtqY8hDcD1uFHeW+GvdaNwlWuSCoHi6s=', 2, NULL);
+(2, 'Martin', 'Becerra', 'martinbecerrasl7@gmail.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 1, NULL),
+(4, 'Carolina', 'Luzza', 'caroluzza@gmail.com', 'BUQ/D7x0miEOtqY8hDcD1uFHeW+GvdaNwlWuSCoHi6s=', 2, NULL),
+(5, 'Victor ', 'Aguilera', 'vic@yopmail.com', '/zEGpjs2H5OIO+fg0i1ExnZtou/q2sDrMyZCkjelCFU=', 2, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -312,37 +274,37 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `auditoria`
 --
 ALTER TABLE `auditoria`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `contrato`
 --
 ALTER TABLE `contrato`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `imagen`
 --
 ALTER TABLE `imagen`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `inquilino`
 --
 ALTER TABLE `inquilino`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `pago`
 --
 ALTER TABLE `pago`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `propietario`
