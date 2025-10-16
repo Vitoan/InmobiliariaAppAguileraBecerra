@@ -53,6 +53,15 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Verificar superposición
+                if (_repoContrato.ExisteSuperposicion(c))
+                {
+                    TempData["Error"] = "Ya existe un contrato vigente o superpuesto para este inmueble en las fechas seleccionadas.";
+                    ViewBag.Inquilinos = new SelectList(_repoInquilino.ObtenerTodos(), "Id", "Apellido", c.InquilinoId);
+                    ViewBag.Inmuebles = new SelectList(_repoInmueble.ObtenerTodos(), "Id", "Direccion", c.InmuebleId);
+                    return View(c);
+                }
+
                 _repoContrato.Alta(c);
                 TempData["Mensaje"] = "Contrato creado correctamente.";
                 return RedirectToAction(nameof(Index));
@@ -84,6 +93,11 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
             if (ModelState.IsValid)
             {
+                if (_repoContrato.ExisteSuperposicion(c))
+                {
+                    TempData["Error"] = "Las fechas ingresadas se superponen con otro contrato para el mismo inmueble.";
+                    return View(c);
+                }
                 _repoContrato.Modificacion(c);
                 TempData["Mensaje"] = "Contrato modificado correctamente.";
                 return RedirectToAction(nameof(Index));
@@ -112,50 +126,65 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
         // --- NUEVO MÉTODO: FINALIZAR ANTICIPADAMENTE ---
         [HttpPost]
-[ValidateAntiForgeryToken]
-public IActionResult FinalizarAnticipado(int id, DateTime fechaFinAnticipada)
-{
-    var contrato = _repoContrato.ObtenerPorId(id);
-    if (contrato == null)
-        return NotFound();
+        [ValidateAntiForgeryToken]
+        public IActionResult FinalizarAnticipado(int id, DateTime fechaFinAnticipada)
+        {
+            var contrato = _repoContrato.ObtenerPorId(id);
+            if (contrato == null)
+                return NotFound();
 
-    if (fechaFinAnticipada <= contrato.FechaInicio)
-    {
-        TempData["Error"] = "La fecha anticipada debe ser posterior al inicio.";
-        return RedirectToAction("Detalles", new { id });
-    }
+            if (fechaFinAnticipada <= contrato.FechaInicio)
+            {
+                TempData["Error"] = "La fecha anticipada debe ser posterior al inicio.";
+                return RedirectToAction("Detalles", new { id });
+            }
 
-    // Obtener cantidad de pagos realizados
-    var repoPago = new RepositorioPago();
-    int cantidadPagos = repoPago.ContarPorContrato(id);
+            // Obtener cantidad de pagos realizados
+            var repoPago = new RepositorioPago();
+            int cantidadPagos = repoPago.ContarPorContrato(id);
 
-    // Calcular meses que debería haber pagado
-    int mesesTotales = (int)Math.Ceiling((contrato.FechaFinAnticipada ?? fechaFinAnticipada).Subtract(contrato.FechaInicio).TotalDays / 30.0);
-    int mesesPagados = cantidadPagos;
-    int mesesAdeudados = Math.Max(0, mesesTotales - mesesPagados);
+            // Calcular meses que debería haber pagado
+            int mesesTotales = (int)Math.Ceiling((contrato.FechaFinAnticipada ?? fechaFinAnticipada).Subtract(contrato.FechaInicio).TotalDays / 30.0);
+            int mesesPagados = cantidadPagos;
+            int mesesAdeudados = Math.Max(0, mesesTotales - mesesPagados);
 
-    // Calcular deuda
-    decimal deuda = mesesAdeudados * contrato.Monto;
+            // Calcular deuda
+            decimal deuda = mesesAdeudados * contrato.Monto;
 
-    // Cálculo de multa según proporción del contrato cumplido
-    double totalDias = (contrato.FechaFin - contrato.FechaInicio).TotalDays;
-    double diasCumplidos = (fechaFinAnticipada - contrato.FechaInicio).TotalDays;
-    double proporcion = diasCumplidos / totalDias;
+            // Cálculo de multa según proporción del contrato cumplido
+            double totalDias = (contrato.FechaFin - contrato.FechaInicio).TotalDays;
+            double diasCumplidos = (fechaFinAnticipada - contrato.FechaInicio).TotalDays;
+            double proporcion = diasCumplidos / totalDias;
 
-    decimal multa = proporcion < 0.5 ? contrato.Monto * 2 : contrato.Monto;
+            decimal multa = proporcion < 0.5 ? contrato.Monto * 2 : contrato.Monto;
 
-    // Total a pagar
-    decimal totalPendiente = deuda + multa;
+            // Total a pagar
+            decimal totalPendiente = deuda + multa;
 
-    // Actualizar contrato
-    contrato.FechaFinAnticipada = fechaFinAnticipada;
-    contrato.Multa = multa;
-    contrato.Vigente = false;
-    _repoContrato.FinalizarAnticipado(contrato);
+            // Actualizar contrato
+            contrato.FechaFinAnticipada = fechaFinAnticipada;
+            contrato.Multa = multa;
+            contrato.Vigente = false;
+            _repoContrato.FinalizarAnticipado(contrato);
 
-    TempData["Mensaje"] = $"Contrato finalizado anticipadamente. Multa: ${multa:N2}. Deuda: ${deuda:N2}. Total a abonar: ${totalPendiente:N2}";
-    return RedirectToAction("Detalles", new { id });
-}
+            TempData["Mensaje"] = $"Contrato finalizado anticipadamente. Multa: ${multa:N2}. Deuda: ${deuda:N2}. Total a abonar: ${totalPendiente:N2}";
+            return RedirectToAction("Detalles", new { id });
+        }
+        [HttpGet]
+        public JsonResult VerificarSuperposicion(int inmuebleId, DateTime fechaInicio, DateTime fechaFin, int id = 0)
+        {
+            var contratoTemp = new Contrato
+            {
+                Id = id,
+                InmuebleId = inmuebleId,
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin
+            };
+
+            bool existe = _repoContrato.ExisteSuperposicion(contratoTemp);
+            return Json(new { existe });
+        }
+
 
     }
 }

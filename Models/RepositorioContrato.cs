@@ -147,6 +147,37 @@ namespace InmobiliariaAppAguileraBecerra.Models
             }
             return res;
         }
+// ❓ Verificar superposición (nuevo método)
+
+        public bool ExisteSuperposicion(Contrato c)
+{
+    bool existe = false;
+    using (var connection = GetConnection())
+    {
+        string sql = @"
+            SELECT COUNT(*) 
+            FROM contrato
+            WHERE InmuebleId = @InmuebleId
+              AND Id <> @Id
+              AND Vigente = 1
+              AND (
+                    (FechaInicio < @FechaFin AND FechaFin > @FechaInicio)
+                  );
+        ";
+        using (var command = new MySqlCommand(sql, connection))
+        {
+            command.Parameters.AddWithValue("@InmuebleId", c.InmuebleId);
+            command.Parameters.AddWithValue("@Id", c.Id); // si es nuevo, Id = 0
+            command.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
+            command.Parameters.AddWithValue("@FechaFin", c.FechaFin);
+            connection.Open();
+            int count = Convert.ToInt32(command.ExecuteScalar() ?? 0);
+            existe = count > 0;
+        }
+    }
+    return existe;
+}
+
 
         // 🔴 Finalizar anticipadamente (nuevo método)
         public int FinalizarAnticipado(Contrato c)

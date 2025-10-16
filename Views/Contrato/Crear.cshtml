@@ -8,6 +8,15 @@
     <i class="bi bi-file-earmark-text-fill"></i> @ViewData["Title"]
 </h1>
 <hr />
+<!-- Bloque de mensajes de error -->
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
 <div class="shadow-sm p-4 rounded bg-light">
     <form asp-action="Crear">
@@ -52,4 +61,89 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        (function () {
+            // Localizamos el form (si hay más de uno, adaptá el selector)
+            const form = document.querySelector("form[asp-action='Crear'], form[asp-action='Editar']") || document.querySelector("form");
+            if (!form) return;
+
+            // Creamos el div de alerta (invisible inicialmente)
+            const alertDiv = document.createElement("div");
+            alertDiv.className = "alert alert-danger d-none mt-3";
+            alertDiv.role = "alert";
+
+            // Insertamos el alert arriba del formulario (o donde prefieras)
+            form.parentNode.insertBefore(alertDiv, form);
+
+            // Helpers para obtener elementos (compatible con los ids generados por TagHelpers)
+            function getValueByIdOrName(name) {
+                // intenta por id
+                let el = document.getElementById(name);
+                if (el) return el.value;
+                // luego por name
+                el = form.querySelector(`[name='${name}']`);
+                return el ? el.value : null;
+            }
+
+            form.addEventListener("submit", async function (e) {
+                // Oculta alert previo
+                alertDiv.classList.add("d-none");
+                alertDiv.textContent = "";
+
+                // Obtener valores del formulario
+                const inmuebleId = getValueByIdOrName("InmuebleId");
+                const fechaInicio = getValueByIdOrName("FechaInicio");
+                const fechaFin = getValueByIdOrName("FechaFin");
+                const id = getValueByIdOrName("Id") || 0; // en Crear puede ser null/undefined
+
+                // Validación básica cliente: campos presentes
+                if (!inmuebleId || !fechaInicio || !fechaFin) {
+                    // dejamos que el validador de modelo muestre errores; no interferimos
+                    return;
+                }
+
+                // Validación local: fechaFin > fechaInicio
+                const inicioDate = new Date(fechaInicio);
+                const finDate = new Date(fechaFin);
+                if (finDate <= inicioDate) {
+                    e.preventDefault();
+                    alertDiv.textContent = "La fecha de fin debe ser posterior a la fecha de inicio.";
+                    alertDiv.classList.remove("d-none");
+                    return;
+                }
+
+                // Preparar parámetros (encode)
+                const params = new URLSearchParams({
+                    inmuebleId: inmuebleId,
+                    fechaInicio: fechaInicio, // formato yyyy-MM-dd proporcionado por input[type=date]
+                    fechaFin: fechaFin,
+                    id: id
+                });
+
+                // Llamada AJAX al servidor
+                try {
+                    const url = "/Contrato/VerificarSuperposicion?" + params.toString();
+                    const resp = await fetch(url, { method: "GET", credentials: "same-origin" });
+                    if (!resp.ok) {
+                        // en caso de error de red/servidor: no bloqueamos el envío
+                        console.error("Error al verificar superposición:", resp.statusText);
+                        return;
+                    }
+                    const data = await resp.json();
+                    if (data.existe) {
+                        e.preventDefault();
+                        alertDiv.textContent = "Ya existe un contrato vigente para este inmueble en las fechas seleccionadas.";
+                        alertDiv.classList.remove("d-none");
+                        return;
+                    }
+                    // Si no hay superposición, permitimos el envío (no hacemos nada)
+                } catch (err) {
+                    // Si falla el fetch, permitimos enviar para que el backend valide y devuelva el error
+                    console.error("Excepción verificando superposición:", err);
+                }
+            });
+        })();
+    </script>
 }
+
