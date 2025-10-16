@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using InmobiliariaAppAguileraBecerra.Models;
 using System;
+using System.Collections.Generic; 
+using System.Linq; 
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {
@@ -144,6 +146,7 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             int cantidadPagos = repoPago.ContarPorContrato(id);
 
             // Calcular meses que debería haber pagado
+            // Se usa fechaFinAnticipada si el campo FechaFinAnticipada del contrato es null
             int mesesTotales = (int)Math.Ceiling((contrato.FechaFinAnticipada ?? fechaFinAnticipada).Subtract(contrato.FechaInicio).TotalDays / 30.0);
             int mesesPagados = cantidadPagos;
             int mesesAdeudados = Math.Max(0, mesesTotales - mesesPagados);
@@ -170,6 +173,54 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             TempData["Mensaje"] = $"Contrato finalizado anticipadamente. Multa: ${multa:N2}. Deuda: ${deuda:N2}. Total a abonar: ${totalPendiente:N2}";
             return RedirectToAction("Detalles", new { id });
         }
+        
+        // --- FILTRAR CONTRATOS POR FECHA ---
+        public IActionResult PorFecha(DateTime? fecha)
+        {
+            // Si no se proporciona una fecha, usa la actual
+            DateTime fechaConsulta = fecha ?? DateTime.Today; 
+            
+            var contratos = _repoContrato.ObtenerVigentesEnFecha(fechaConsulta);
+            
+            ViewData["FechaConsulta"] = fechaConsulta.ToString("dd/MM/yyyy");
+
+            return View("Index", contratos); 
+        }
+
+        // ====================================================================================
+        // --- MÉTODO CORREGIDO: FILTRAR CONTRATOS POR INMUEBLE ---
+        // Se cambió el tipo de inmuebleId a int? y se cargan los inmuebles en el ViewBag.
+        // ====================================================================================
+        public IActionResult PorInmueble(int? inmuebleId) 
+        {
+            // 1. Obtener todos los inmuebles para el dropdown de la vista
+            var inmuebles = _repoInmueble.ObtenerTodos();
+            ViewBag.Inmuebles = inmuebles;
+            ViewBag.InmuebleSeleccionadoId = inmuebleId; // Pasa el ID seleccionado
+
+            List<Contrato> contratos;
+            
+            if (inmuebleId.HasValue && inmuebleId.Value > 0)
+            {
+                // 2. Si se seleccionó un inmueble, FILTRAR por ese ID.
+                // ¡Asegúrate que ObtenerPorInmueble() en el Repositorio esté devolviendo datos!
+                contratos = _repoContrato.ObtenerPorInmueble(inmuebleId.Value);
+
+                // Opcional: Para mostrar en la vista la dirección del inmueble
+                var inmueble = inmuebles.FirstOrDefault(i => i.Id == inmuebleId.Value);
+                ViewData["Title"] = $"Contratos del Inmueble: {inmueble?.Direccion}";
+            }
+            else
+            {
+                // 3. Si no hay ID o es "Todos", mostrar todos los contratos.
+                contratos = _repoContrato.ObtenerTodos(); 
+                ViewData["Title"] = "Contratos por Inmueble (Todos)";
+            }
+
+            // 4. Retorna la vista PorInmueble, que tiene el formulario de filtrado.
+            return View("PorInmueble", contratos);
+        }
+
         [HttpGet]
         public JsonResult VerificarSuperposicion(int inmuebleId, DateTime fechaInicio, DateTime fechaFin, int id = 0)
         {
@@ -184,7 +235,5 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             bool existe = _repoContrato.ExisteSuperposicion(contratoTemp);
             return Json(new { existe });
         }
-
-
     }
 }
