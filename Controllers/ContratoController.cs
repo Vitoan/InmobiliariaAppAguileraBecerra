@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using InmobiliariaAppAguileraBecerra.Models;
 using System;
-using System.Collections.Generic; 
-using System.Linq; 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 
 namespace InmobiliariaAppAguileraBecerra.Controllers
 {
@@ -14,15 +15,27 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         private readonly RepositorioContrato _repoContrato;
         private readonly RepositorioInquilino _repoInquilino;
         private readonly RepositorioInmueble _repoInmueble;
+        private readonly RepositorioAuditoria _repoAuditoria;
+        private readonly RepositorioPago _repoPago;
 
-        public ContratoController()
+        // Opciones JSON con formato legible
+        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+
+        public ContratoController(
+            RepositorioContrato repoContrato,
+            RepositorioInquilino repoInquilino,
+            RepositorioInmueble repoInmueble,
+            RepositorioAuditoria repoAuditoria,
+            RepositorioPago repoPago)
         {
-            _repoContrato = new RepositorioContrato();
-            _repoInquilino = new RepositorioInquilino();
-            _repoInmueble = new RepositorioInmueble();
+            _repoContrato = repoContrato;
+            _repoInquilino = repoInquilino;
+            _repoInmueble = repoInmueble;
+            _repoAuditoria = repoAuditoria;
+            _repoPago = repoPago;
         }
 
-        // --- LISTAR CONTRATOS ---
+        // --- INDEX ---
         public IActionResult Index()
         {
             var contratos = _repoContrato.ObtenerTodos();
@@ -53,25 +66,35 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         [Authorize]
         public IActionResult Crear(Contrato c)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // Verificar superposición
-                if (_repoContrato.ExisteSuperposicion(c))
-                {
-                    TempData["Error"] = "Ya existe un contrato vigente o superpuesto para este inmueble en las fechas seleccionadas.";
-                    ViewBag.Inquilinos = new SelectList(_repoInquilino.ObtenerTodos(), "Id", "Apellido", c.InquilinoId);
-                    ViewBag.Inmuebles = new SelectList(_repoInmueble.ObtenerTodos(), "Id", "Direccion", c.InmuebleId);
-                    return View(c);
-                }
-
-                _repoContrato.Alta(c);
-                TempData["Mensaje"] = "Contrato creado correctamente.";
-                return RedirectToAction(nameof(Index));
+                CargarCombos(c);
+                return View(c);
             }
 
-            ViewBag.Inquilinos = new SelectList(_repoInquilino.ObtenerTodos(), "Id", "Apellido", c.InquilinoId);
-            ViewBag.Inmuebles = new SelectList(_repoInmueble.ObtenerTodos(), "Id", "Direccion", c.InmuebleId);
-            return View(c);
+            // Validar superposición
+            if (_repoContrato.ExisteSuperposicion(c))
+            {
+                TempData["Error"] = "Ya existe un contrato vigente o superpuesto para este inmueble en las fechas seleccionadas.";
+                CargarCombos(c);
+                return View(c);
+            }
+
+            _repoContrato.Alta(c);
+
+            // --- AUDITORÍA: CREACIÓN ---
+            var auditoria = new Auditoria
+            {
+                Tabla = "Contrato",
+                Operacion = "Alta",
+                RegistroId = c.Id,
+                DatosNuevos = JsonSerializer.Serialize(c, _jsonOptions),
+                Usuario = User?.Identity?.Name ?? "Sistema"
+            };
+            _repoAuditoria.Registrar(auditoria);
+
+            TempData["Mensaje"] = "Contrato creado correctamente.";
+            return RedirectToAction(nameof(Index));
         }
 
         // --- EDITAR ---
@@ -79,10 +102,10 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         public IActionResult Editar(int id)
         {
             var contrato = _repoContrato.ObtenerPorId(id);
-            if (contrato == null) return NotFound();
+            if (contrato == null)
+                return NotFound();
 
-            ViewBag.Inquilinos = new SelectList(_repoInquilino.ObtenerTodos(), "Id", "Apellido", contrato.InquilinoId);
-            ViewBag.Inmuebles = new SelectList(_repoInmueble.ObtenerTodos(), "Id", "Direccion", contrato.InmuebleId);
+            CargarCombos(contrato);
             return View(contrato);
         }
 
@@ -93,40 +116,43 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
         {
             if (id != c.Id) return BadRequest();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (_repoContrato.ExisteSuperposicion(c))
-                {
-                    TempData["Error"] = "Las fechas ingresadas se superponen con otro contrato para el mismo inmueble.";
-                    return View(c);
-                }
-                _repoContrato.Modificacion(c);
-                TempData["Mensaje"] = "Contrato modificado correctamente.";
-                return RedirectToAction(nameof(Index));
+                CargarCombos(c);
+                return View(c);
             }
-            return View(c);
-        }
 
-        // --- ELIMINAR ---
-        [Authorize(Policy = "Administrador")]
-        public IActionResult Eliminar(int id)
-        {
-            var contrato = _repoContrato.ObtenerPorId(id);
-            if (contrato == null) return NotFound();
-            return View(contrato);
-        }
+            if (_repoContrato.ExisteSuperposicion(c))
+            {
+                TempData["Error"] = "Las fechas ingresadas se superponen con otro contrato para el mismo inmueble.";
+                CargarCombos(c);
+                return View(c);
+            }
 
-        [HttpPost, ActionName("Eliminar")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = "Administrador")]
-        public IActionResult ConfirmarEliminar(int id)
-        {
-            _repoContrato.Baja(id);
-            TempData["Mensaje"] = "Contrato eliminado correctamente.";
+            // Auditoría: estado anterior
+            var original = _repoContrato.ObtenerPorId(id);
+            var datosAnteriores = JsonSerializer.Serialize(original, _jsonOptions);
+
+            _repoContrato.Modificacion(c);
+
+            // Auditoría: estado nuevo
+            var datosNuevos = JsonSerializer.Serialize(c, _jsonOptions);
+            var auditoria = new Auditoria
+            {
+                Tabla = "Contrato",
+                Operacion = "Modificación",
+                RegistroId = c.Id,
+                DatosAnteriores = datosAnteriores,
+                DatosNuevos = datosNuevos,
+                Usuario = User?.Identity?.Name ?? "Sistema"
+            };
+            _repoAuditoria.Registrar(auditoria);
+
+            TempData["Mensaje"] = "Contrato modificado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
-        // --- NUEVO MÉTODO: FINALIZAR ANTICIPADAMENTE ---
+        // --- FINALIZAR ANTICIPADAMENTE ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult FinalizarAnticipado(int id, DateTime fechaFinAnticipada)
@@ -137,31 +163,28 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
             if (fechaFinAnticipada <= contrato.FechaInicio)
             {
-                TempData["Error"] = "La fecha anticipada debe ser posterior al inicio.";
+                TempData["Error"] = "La fecha anticipada debe ser posterior al inicio del contrato.";
                 return RedirectToAction("Detalles", new { id });
             }
 
-            // Obtener cantidad de pagos realizados
-            var repoPago = new RepositorioPago();
-            int cantidadPagos = repoPago.ContarPorContrato(id);
+            // Estado anterior
+            var datosAnteriores = JsonSerializer.Serialize(new
+            {
+                contrato.Vigente,
+                contrato.FechaFinAnticipada,
+                contrato.Multa
+            }, _jsonOptions);
 
-            // Calcular meses que debería haber pagado
-            // Se usa fechaFinAnticipada si el campo FechaFinAnticipada del contrato es null
-            int mesesTotales = (int)Math.Ceiling((contrato.FechaFinAnticipada ?? fechaFinAnticipada).Subtract(contrato.FechaInicio).TotalDays / 30.0);
-            int mesesPagados = cantidadPagos;
-            int mesesAdeudados = Math.Max(0, mesesTotales - mesesPagados);
-
-            // Calcular deuda
-            decimal deuda = mesesAdeudados * contrato.Monto;
-
-            // Cálculo de multa según proporción del contrato cumplido
+            // Cálculos
+            int cantidadPagos = _repoPago.ContarPorContrato(id);
             double totalDias = (contrato.FechaFin - contrato.FechaInicio).TotalDays;
             double diasCumplidos = (fechaFinAnticipada - contrato.FechaInicio).TotalDays;
             double proporcion = diasCumplidos / totalDias;
-
+            int mesesTotales = (int)Math.Ceiling(totalDias / 30.0);
+            int mesesPagados = cantidadPagos;
+            int mesesAdeudados = Math.Max(0, mesesTotales - mesesPagados);
+            decimal deuda = mesesAdeudados * contrato.Monto;
             decimal multa = proporcion < 0.5 ? contrato.Monto * 2 : contrato.Monto;
-
-            // Total a pagar
             decimal totalPendiente = deuda + multa;
 
             // Actualizar contrato
@@ -170,54 +193,58 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
             contrato.Vigente = false;
             _repoContrato.FinalizarAnticipado(contrato);
 
-            TempData["Mensaje"] = $"Contrato finalizado anticipadamente. Multa: ${multa:N2}. Deuda: ${deuda:N2}. Total a abonar: ${totalPendiente:N2}";
+            // Auditoría
+            var datosNuevos = JsonSerializer.Serialize(new
+            {
+                contrato.Vigente,
+                contrato.FechaFinAnticipada,
+                contrato.Multa
+            }, _jsonOptions);
+
+            var auditoria = new Auditoria
+            {
+                Tabla = "Contrato",
+                Operacion = "Terminación Anticipada",
+                RegistroId = contrato.Id,
+                DatosAnteriores = datosAnteriores,
+                DatosNuevos = datosNuevos,
+                Usuario = User?.Identity?.Name ?? "Sistema"
+            };
+            _repoAuditoria.Registrar(auditoria);
+
+            TempData["Mensaje"] = $"Contrato finalizado anticipadamente. Multa: ${multa:N2}, Deuda: ${deuda:N2}, Total a abonar: ${totalPendiente:N2}";
             return RedirectToAction("Detalles", new { id });
         }
-        
-        // --- FILTRAR CONTRATOS POR FECHA ---
+
+        // --- FILTROS ---
         public IActionResult PorFecha(DateTime? fecha)
         {
-            // Si no se proporciona una fecha, usa la actual
-            DateTime fechaConsulta = fecha ?? DateTime.Today; 
-            
+            DateTime fechaConsulta = fecha ?? DateTime.Today;
             var contratos = _repoContrato.ObtenerVigentesEnFecha(fechaConsulta);
-            
             ViewData["FechaConsulta"] = fechaConsulta.ToString("dd/MM/yyyy");
-
-            return View("Index", contratos); 
+            return View("Index", contratos);
         }
 
-        // ====================================================================================
-        // --- MÉTODO CORREGIDO: FILTRAR CONTRATOS POR INMUEBLE ---
-        // Se cambió el tipo de inmuebleId a int? y se cargan los inmuebles en el ViewBag.
-        // ====================================================================================
-        public IActionResult PorInmueble(int? inmuebleId) 
+        public IActionResult PorInmueble(int? inmuebleId)
         {
-            // 1. Obtener todos los inmuebles para el dropdown de la vista
             var inmuebles = _repoInmueble.ObtenerTodos();
             ViewBag.Inmuebles = inmuebles;
-            ViewBag.InmuebleSeleccionadoId = inmuebleId; // Pasa el ID seleccionado
+            ViewBag.InmuebleSeleccionadoId = inmuebleId;
 
             List<Contrato> contratos;
-            
+
             if (inmuebleId.HasValue && inmuebleId.Value > 0)
             {
-                // 2. Si se seleccionó un inmueble, FILTRAR por ese ID.
-                // ¡Asegúrate que ObtenerPorInmueble() en el Repositorio esté devolviendo datos!
                 contratos = _repoContrato.ObtenerPorInmueble(inmuebleId.Value);
-
-                // Opcional: Para mostrar en la vista la dirección del inmueble
                 var inmueble = inmuebles.FirstOrDefault(i => i.Id == inmuebleId.Value);
                 ViewData["Title"] = $"Contratos del Inmueble: {inmueble?.Direccion}";
             }
             else
             {
-                // 3. Si no hay ID o es "Todos", mostrar todos los contratos.
-                contratos = _repoContrato.ObtenerTodos(); 
+                contratos = _repoContrato.ObtenerTodos();
                 ViewData["Title"] = "Contratos por Inmueble (Todos)";
             }
 
-            // 4. Retorna la vista PorInmueble, que tiene el formulario de filtrado.
             return View("PorInmueble", contratos);
         }
 
@@ -234,6 +261,13 @@ namespace InmobiliariaAppAguileraBecerra.Controllers
 
             bool existe = _repoContrato.ExisteSuperposicion(contratoTemp);
             return Json(new { existe });
+        }
+
+        // --- MÉTODO AUXILIAR ---
+        private void CargarCombos(Contrato c)
+        {
+            ViewBag.Inquilinos = new SelectList(_repoInquilino.ObtenerTodos(), "Id", "Apellido", c.InquilinoId);
+            ViewBag.Inmuebles = new SelectList(_repoInmueble.ObtenerTodos(), "Id", "Direccion", c.InmuebleId);
         }
     }
 }

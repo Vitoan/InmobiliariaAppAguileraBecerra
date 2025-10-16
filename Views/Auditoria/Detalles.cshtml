@@ -21,7 +21,7 @@
             </h5>
 
             <dl class="row">
-                <dt class="col-sm-3">ID:</dt>
+                <dt class="col-sm-3" data-bs-toggle="tooltip" title="Identificador único de la auditoría">ID:</dt>
                 <dd class="col-sm-9">@Model.Id</dd>
 
                 <dt class="col-sm-3">Tabla:</dt>
@@ -36,6 +36,7 @@
                         case "Modificación":
                             <span class="badge bg-warning text-dark">Modificación</span>; break;
                         case "Terminación":
+                        case "Terminación Anticipada":
                             <span class="badge bg-danger">Terminación</span>; break;
                         case "Anulación":
                             <span class="badge bg-secondary">Anulación</span>; break;
@@ -65,7 +66,7 @@
                         <i class="bi bi-arrow-left-circle"></i> Datos Anteriores
                     </div>
                     <div class="card-body bg-light">
-                        <pre class="json-view">@Model.DatosAnteriores</pre>
+                        <pre class="json-view">@Html.Raw(Model.DatosAnteriores)</pre>
                     </div>
                 </div>
             </div>
@@ -73,13 +74,13 @@
 
         @if (!string.IsNullOrEmpty(Model.DatosNuevos))
         {
-            <div class="col-md-6 mb-4">
+            <div class="@(string.IsNullOrEmpty(Model.DatosAnteriores) ? "col-md-12" : "col-md-6") mb-4">
                 <div class="card border-success shadow-sm">
                     <div class="card-header bg-success text-white">
                         <i class="bi bi-arrow-right-circle"></i> Datos Nuevos
                     </div>
                     <div class="card-body bg-light">
-                        <pre class="json-view">@Model.DatosNuevos</pre>
+                        <pre class="json-view">@Html.Raw(Model.DatosNuevos)</pre>
                     </div>
                 </div>
             </div>
@@ -109,10 +110,27 @@
     }
 
     .card {
-        transition: transform 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .card:hover {
         transform: scale(1.01);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
     }
 </style>
+
+@section Scripts {
+    <script>
+        // Activa tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el) });
+
+        // Formatea JSON si es válido
+        document.querySelectorAll('.json-view').forEach(pre => {
+            try {
+                const json = JSON.parse(pre.textContent);
+                pre.textContent = JSON.stringify(json, null, 2);
+            } catch (e) { }
+        });
+    </script>
+}
